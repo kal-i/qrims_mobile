@@ -7,6 +7,7 @@ import '../../../../config/routes/app_routing_constants.dart';
 import '../../../../config/sizing/sizing_config.dart';
 import '../../../../config/themes/app_color.dart';
 import '../../../../core/constants/assets_path.dart';
+import '../components/summary_card.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -20,29 +21,32 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20.0,
-            vertical: 30.0,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildHeaderRow(),
-              SizedBox(
-                height: SizingConfig.heightMultiplier * 3.0,
-              ),
-              Expanded(
-                child: _buildSummaryReportsContainer(),
-              ),
-              SizedBox(
-                height: SizingConfig.heightMultiplier * 3.0,
-              ),
-              Expanded(
-                flex: 2,
-                child: _buildPendingRequestsView(),
-              ),
-            ],
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: SizingConfig.widthMultiplier * 5.0,
+              vertical: SizingConfig.heightMultiplier * 3.0,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildHeaderRow(),
+                SizedBox(
+                  height: SizingConfig.heightMultiplier * 3.0,
+                ),
+                SizedBox(
+                  height: SizingConfig.heightMultiplier * 23.0,
+                  child: _buildSummaryReportsContainer(),
+                ),
+                SizedBox(
+                  height: SizingConfig.heightMultiplier * 3.0,
+                ),
+                SizedBox(
+                  height: SizingConfig.heightMultiplier * 20.0,
+                  child: _buildPendingRequestsView(),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -67,27 +71,18 @@ class _HomeViewState extends State<HomeView> {
           ],
         ),
         _buildProfileContainer(),
-        // IconButton(
-        //   onPressed: () => context.go(
-        //     RoutingConstants.nestedQrScannerViewRoutePath,
-        //   ),
-        //   icon: const Icon(
-        //     HugeIcons.strokeRoundedQrCode01,
-        //     size: 24.0,
-        //   ),
-        // ),
       ],
     );
   }
 
   Widget _buildSummaryReportsContainer() {
-    return Row(
+    return const Row(
       children: [
         Expanded(
           child: Column(
             children: [
               Expanded(
-                child: _buildSummaryCard(
+                child: SummaryCard(
                   label: 'Fulfilled',
                   icon: HugeIcons.strokeRoundedPackageDelivered,
                   background: AppColor.lightGreen,
@@ -95,11 +90,11 @@ class _HomeViewState extends State<HomeView> {
                   foreground: AppColor.lightGreenText,
                 ),
               ),
-              const SizedBox(
+              SizedBox(
                 height: 10.0,
               ),
               Expanded(
-                child: _buildSummaryCard(
+                child: SummaryCard(
                   label: 'Semi-Fulfilled',
                   icon: HugeIcons.strokeRoundedPackageRemove,
                   background: AppColor.lightBlue,
@@ -110,14 +105,14 @@ class _HomeViewState extends State<HomeView> {
             ],
           ),
         ),
-        const SizedBox(
+        SizedBox(
           width: 10.0,
         ),
         Expanded(
           child: Column(
             children: [
               Expanded(
-                child: _buildSummaryCard(
+                child: SummaryCard(
                   label: 'Pending',
                   icon: HugeIcons.strokeRoundedPackageProcess,
                   background: AppColor.lightYellow,
@@ -125,11 +120,11 @@ class _HomeViewState extends State<HomeView> {
                   foreground: AppColor.lightYellowText,
                 ),
               ),
-              const SizedBox(
+              SizedBox(
                 height: 10.0,
               ),
               Expanded(
-                  child: _buildSummaryCard(
+                  child: SummaryCard(
                 label: 'Cancelled',
                 icon: HugeIcons.strokeRoundedPackageRemove,
                 background: AppColor.lightRed,
@@ -145,65 +140,6 @@ class _HomeViewState extends State<HomeView> {
 
   // todo: prolly move the cancelled and fulfilled to history
 
-  Widget _buildSummaryCard({
-    required String label,
-    required IconData icon,
-    required Color background,
-    required Color outlineColor,
-    required Color foreground,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(10.0),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.0),
-        color: Theme.of(context).primaryColor,
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10.0),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: outlineColor,
-              ),
-              borderRadius: BorderRadius.circular(10.0),
-              color: background,
-            ),
-            child: Icon(
-              icon,
-              color: outlineColor,
-              size: 20.0,
-            ),
-          ),
-          const SizedBox(
-            width: 10.0,
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: foreground,
-                        fontSize: SizingConfig.textMultiplier * 1.6,
-                      ),
-                ),
-                Text(
-                  '69',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: foreground,
-                        fontSize: SizingConfig.textMultiplier * 3.5,
-                      ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildProfileContainer() {
     return Container(
@@ -256,30 +192,14 @@ class _HomeViewState extends State<HomeView> {
         const SizedBox(
           height: 5.0,
         ),
-        Container(
-          padding: const EdgeInsets.all(10.0),
-          child: Row(
-            children: _prStatusLists
-                .map(
-                  (prStatus) => Container(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Text(
-                      prStatus,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            decoration: TextDecoration.underline,
-                            decorationThickness: 3.0,
-                          ),
-                    ),
-                  ),
-                )
-                .toList(),
-          ),
-        ),
+
         const SizedBox(
           height: 5.0,
         ),
         Expanded(
           child: ListView.builder(
+            shrinkWrap: true,  // Important for proper scrolling behavior
+            //physics: const NeverScrollableScrollPhysics(),  // Disable scrolling here
             itemCount: 10,
             itemBuilder: (context, index) {
               return Slidable(

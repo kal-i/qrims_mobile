@@ -5,15 +5,14 @@ import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../config/routes/app_routing_constants.dart';
 import '../../../../config/sizing/sizing_config.dart';
-import '../../../../core/common/components/custom_filled_button.dart';
+import '../../../../core/common/components/custom_loading_filled_button.dart';
 import '../../../../core/utils/delightful_toast_utils.dart';
 import '../components/custom_auth_password_text_box/custom_auth_password_text_box.dart';
 import '../../../../core/common/components/custom_text_box.dart';
-import '../components/custom_container.dart';
 import '../components/custom_email_text_box.dart';
 import '../../../../config/themes/app_color.dart';
-import '../../../../core/enums/role.dart';
 import '../bloc/auth_bloc.dart';
+
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
 
@@ -22,16 +21,19 @@ class RegisterView extends StatefulWidget {
 }
 
 class _RegisterViewState extends State<RegisterView> {
+  final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
+
+  final ValueNotifier<bool> _isLoading = ValueNotifier(false);
 
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _isLoading.dispose();
     super.dispose();
   }
 
@@ -51,7 +53,12 @@ class _RegisterViewState extends State<RegisterView> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) async {
+        if (state is AuthLoading) {
+          _isLoading.value = true;
+        }
+
         if (state is AuthFailure) {
+          _isLoading.value = false;
           DelightfulToastUtils.showDelightfulToast(
             context: context,
             icon: Icons.error_outline,
@@ -61,6 +68,7 @@ class _RegisterViewState extends State<RegisterView> {
         }
 
         if (state is AuthSuccess) {
+          _isLoading.value = false;
           DelightfulToastUtils.showDelightfulToast(
             context: context,
             icon: Icons.check_circle_outline,
@@ -82,9 +90,10 @@ class _RegisterViewState extends State<RegisterView> {
           SizedBox(
             height: SizingConfig.heightMultiplier * 2.0,
           ),
-          CustomFilledButton(
+          CustomLoadingFilledButton(
             onTap: () => _register(),
             text: 'Sign up',
+            isLoadingNotifier: _isLoading,
             height: SizingConfig.heightMultiplier * 6,
           ),
           SizedBox(

@@ -26,12 +26,17 @@ class MobileUserModel extends MobileUserEntity implements UserModel {
     print('AuthStatus string from JSON: $authStatusString');
 
     // remove the prefix value in enums if present
-    final authStatusValue = authStatusString.startsWith('AuthStatus.') ? authStatusString.substring(10) : authStatusString;
+    final authStatusValue = authStatusString.startsWith('AuthStatus.')
+        ? authStatusString.substring(10)
+        : authStatusString;
 
     print('processed AuthStatus String: $authStatusValue');
 
     // extract the last part of the role then compare to the retrieved role String
-    final authStatus = AuthStatus.values.firstWhere((e) => e.toString().split('.').last == authStatusValue, orElse: () => AuthStatus.unauthenticated,);
+    final authStatus = AuthStatus.values.firstWhere(
+      (e) => e.toString().split('.').last == authStatusValue,
+      orElse: () => AuthStatus.unauthenticated,
+    );
 
     print('AuthStatus after conversion: $authStatus');
 
@@ -40,14 +45,34 @@ class MobileUserModel extends MobileUserEntity implements UserModel {
       name: json['name'],
       email: json['email'],
       password: json['password'],
-      createdAt: json['created_at'] is String ? DateTime.parse(json['created_at'] as String) : json['created_at'] as DateTime,
-      updatedAt: json['updated_at'] is String ? DateTime.parse(json['updated_at'] as String) : json['updated_at'],
+      createdAt: json['created_at'] is String
+          ? DateTime.parse(json['created_at'] as String)
+          : json['created_at'] as DateTime,
+      updatedAt: json['updated_at'] is String
+          ? DateTime.parse(json['updated_at'] as String)
+          : json['updated_at'],
       authStatus: authStatus,
       isArchived: json['is_archived'],
       otp: json['otp'],
-      otpExpiry: json['otp_expiry'] is String ? DateTime.parse(json['otp_expiry'] as String) : json['otp_expiry'],
-      profileImage: json['profile_image'] != null ? json['profile_image'] as String : null,
+      otpExpiry: json['otp_expiry'] is String
+          ? DateTime.parse(json['otp_expiry'] as String)
+          : json['otp_expiry'],
+      profileImage: json['profile_image'] != null
+          ? json['profile_image'] as String
+          : null,
       mobileUserId: json['mobile_user_id'],
+    );
+  }
+
+  factory MobileUserModel.fromEntity(MobileUserEntity mobileUserEntity) {
+    return MobileUserModel(
+      id: mobileUserEntity.id,
+      name: mobileUserEntity.name,
+      email: mobileUserEntity.email,
+      password: mobileUserEntity.password,
+      createdAt: mobileUserEntity.createdAt,
+      profileImage: mobileUserEntity.profileImage,
+      mobileUserId: mobileUserEntity.mobileUserId,
     );
   }
 
@@ -69,5 +94,3 @@ class MobileUserModel extends MobileUserEntity implements UserModel {
     };
   }
 }
-
-// I badly need to fix the role

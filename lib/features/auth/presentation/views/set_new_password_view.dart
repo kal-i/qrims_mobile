@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../config/sizing/sizing_config.dart';
 import '../../../../core/common/components/custom_filled_button.dart';
+import '../../../../core/common/components/custom_loading_filled_button.dart';
 import '../../../../core/common/components/custom_outline_button.dart';
 import '../../../../core/utils/delightful_toast_utils.dart';
 import '../bloc/auth_bloc.dart';
 import '../components/custom_auth_password_text_box/custom_auth_password_text_box.dart';
-
 import '../../../../config/routes/app_routing_constants.dart';
-import 'base_auth_view.dart';
-import '../../../../config/themes/app_color.dart';
-import '../components/custom_container.dart';
 
 class SetNewPasswordView extends StatefulWidget {
   const SetNewPasswordView({
@@ -26,9 +24,11 @@ class SetNewPasswordView extends StatefulWidget {
 }
 
 class _SetNewPasswordViewState extends State<SetNewPasswordView> {
+  final _formKey = GlobalKey<FormState>();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
+
+  final ValueNotifier<bool> _isLoading = ValueNotifier(false);
 
   void _changePassword() {
     if (_formKey.currentState!.validate()) {
@@ -42,18 +42,31 @@ class _SetNewPasswordViewState extends State<SetNewPasswordView> {
         );
       } else {
         context.read<AuthBloc>().add(
-              AuthResetPassword(
-                  email: widget.email, password: _passwordController.text),
-            );
+          AuthResetPassword(
+              email: widget.email, password: _passwordController.text),
+        );
       }
     }
+  }
+
+  @override
+  void dispose() {
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _isLoading.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) async {
+        if (state is AuthLoading) {
+          _isLoading.value = true;
+        }
+
         if (state is AuthFailure) {
+          _isLoading.value = false;
           DelightfulToastUtils.showDelightfulToast(
             context: context,
             icon: Icons.error_outline,
@@ -63,6 +76,7 @@ class _SetNewPasswordViewState extends State<SetNewPasswordView> {
         }
 
         if (state is AuthSuccess) {
+          _isLoading.value = false;
           DelightfulToastUtils.showDelightfulToast(
             context: context,
             icon: Icons.check_circle_outline,
@@ -96,11 +110,13 @@ class _SetNewPasswordViewState extends State<SetNewPasswordView> {
           style: Theme.of(context).textTheme.titleLarge,
         ),
         SizedBox(
-          height: SizingConfig.heightMultiplier * 2.0,
+          height: SizingConfig.heightMultiplier * 1.0,
         ),
         Text(
           'Please create a secure password.',
-          style: Theme.of(context).textTheme.titleSmall,
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ],
     );
@@ -147,9 +163,10 @@ class _SetNewPasswordViewState extends State<SetNewPasswordView> {
           width: SizingConfig.heightMultiplier * 2.0,
         ),
         Expanded(
-          child: CustomFilledButton(
+          child: CustomLoadingFilledButton(
             onTap: () => _changePassword(),
             text: 'Change Password',
+            isLoadingNotifier: _isLoading,
             height: SizingConfig.heightMultiplier * 6,
           ),
         ),
@@ -157,5 +174,3 @@ class _SetNewPasswordViewState extends State<SetNewPasswordView> {
     );
   }
 }
-
-// TODO: if we put a timer for otp resend, use stream

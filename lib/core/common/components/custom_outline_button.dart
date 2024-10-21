@@ -42,7 +42,7 @@ class CustomOutlineButton extends StatelessWidget {
           decoration: BoxDecoration(
             border: Border.all(
               color: outlineBorderColor,
-              width: 2.0,
+              width: 1.0,
             ),
             borderRadius: BorderRadius.circular(10.0),
           ),
@@ -53,7 +53,8 @@ class CustomOutlineButton extends StatelessWidget {
                 text!,
                 style: theme.textTheme.titleSmall?.copyWith(
                   color: AppColor.accent,
-                  fontSize: 13.0,
+                  fontSize: 12.0,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
               if (icon != null || imagePath != null) // add space conditionally

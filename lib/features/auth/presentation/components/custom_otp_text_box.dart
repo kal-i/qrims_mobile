@@ -22,7 +22,7 @@ class CustomOtpTextBox extends StatelessWidget {
           FocusScope.of(context).nextFocus();
         }
       },
-      fontSize: 32.0,
+      fontSize: 24.0,
       textAlign: TextAlign.center,
       textInputType: TextInputType.number,
       inputFormatters: [

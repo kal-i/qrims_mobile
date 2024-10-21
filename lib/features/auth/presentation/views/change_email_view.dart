@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../config/sizing/sizing_config.dart';
 import '../../../../core/common/components/custom_filled_button.dart';
+import '../../../../core/common/components/custom_loading_filled_button.dart';
 import '../../../../core/enums/verification_purpose.dart';
 import '../../../../core/utils/delightful_toast_utils.dart';
 import '../bloc/auth_bloc.dart';
@@ -24,8 +25,17 @@ class ChangeEmailView extends StatefulWidget {
 }
 
 class _ChangeEmailViewState extends State<ChangeEmailView> {
-  final _emailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+
+  final ValueNotifier<bool> _isLoading = ValueNotifier(false);
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _isLoading.dispose();
+    super.dispose();
+  }
 
   void _sendCode() {
     if (_formKey.currentState!.validate()) {
@@ -41,7 +51,12 @@ class _ChangeEmailViewState extends State<ChangeEmailView> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) async {
+        if (state is AuthLoading) {
+          _isLoading.value = true;
+        }
+
         if (state is AuthFailure) {
+          _isLoading.value = false;
           DelightfulToastUtils.showDelightfulToast(
             context: context,
             icon: Icons.error_outline,
@@ -51,6 +66,7 @@ class _ChangeEmailViewState extends State<ChangeEmailView> {
         }
 
         if (state is OtpSent) {
+          _isLoading.value = false;
           DelightfulToastUtils.showDelightfulToast(
             context: context,
             icon: Icons.check_circle_outline,
@@ -74,9 +90,10 @@ class _ChangeEmailViewState extends State<ChangeEmailView> {
           Expanded(
             child: _buildForm(),
           ),
-          CustomFilledButton(
+          CustomLoadingFilledButton(
             onTap: () => _sendCode(),
             text: 'Send Code',
+            isLoadingNotifier: _isLoading,
             height: SizingConfig.heightMultiplier * 6,
           ),
           SizedBox(
@@ -96,6 +113,15 @@ class _ChangeEmailViewState extends State<ChangeEmailView> {
           widget.purpose == VerificationPurpose.auth ? 'Change Email?' : 'Forgot Password?',
           style: Theme.of(context).textTheme.titleLarge,
         ),
+        SizedBox(
+          height: SizingConfig.heightMultiplier * 1.0,
+        ),
+        Text(
+          'Please enter your email address, and we will send you an email OTP.',
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       ],
     );
   }
@@ -109,7 +135,7 @@ class _ChangeEmailViewState extends State<ChangeEmailView> {
         children: [
           _buildFormHeader(),
           SizedBox(
-            height: SizingConfig.heightMultiplier * 1.0,
+            height: SizingConfig.heightMultiplier * 2.0,
           ),
           CustomEmailTextBox(
             controller: _emailController,

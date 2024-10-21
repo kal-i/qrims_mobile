@@ -4,7 +4,7 @@ import 'package:form_validator/form_validator.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../config/sizing/sizing_config.dart';
-import '../../../../core/common/components/custom_filled_button.dart';
+import '../../../../core/common/components/custom_loading_filled_button.dart';
 import '../../../../core/enums/verification_purpose.dart';
 import '../../../../core/utils/delightful_toast_utils.dart';
 import '../components/custom_auth_password_text_box/bloc/custom_auth_password_text_box_bloc.dart';
@@ -22,33 +22,41 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
+  final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
+
+  final ValueNotifier<bool> _isLoading = ValueNotifier(false);
+
+  void _login() {
+    if (_formKey.currentState!.validate()) {
+      context.read<AuthBloc>().add(
+        AuthLogin(
+          email: _emailController.text,
+          password: _passwordController.text,
+        ),
+      );
+    }
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _isLoading.dispose();
     super.dispose();
-  }
-
-  void _login() {
-    if (_formKey.currentState!.validate()) {
-      context.read<AuthBloc>().add(
-            AuthLogin(
-              email: _emailController.text,
-              password: _passwordController.text,
-            ),
-          );
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) async {
+        if (state is AuthLoading) {
+          _isLoading.value = true;
+        }
+
         if (state is AuthFailure) {
+          _isLoading.value = false;
           DelightfulToastUtils.showDelightfulToast(
             context: context,
             icon: Icons.error_outline,
@@ -59,6 +67,7 @@ class _LoginViewState extends State<LoginView> {
 
         // we need to change the redirection of user to otp ver if we
         if (state is OtpRequired) {
+          _isLoading.value = false;
           context.read<AuthBloc>().add(
                 AuthSendOtp(
                   email: _emailController.text,
@@ -67,6 +76,7 @@ class _LoginViewState extends State<LoginView> {
         }
 
         if (state is OtpSent) {
+          _isLoading.value = false;
           context.go(
             RoutingConstants.otpVerificationViewRoutePath,
             extra: {
@@ -77,6 +87,7 @@ class _LoginViewState extends State<LoginView> {
         }
 
         if (state is AuthSuccess) {
+          _isLoading.value = false;
           DelightfulToastUtils.showDelightfulToast(
             context: context,
             icon: Icons.check_circle_outline,
@@ -98,9 +109,10 @@ class _LoginViewState extends State<LoginView> {
           SizedBox(
             height: SizingConfig.heightMultiplier * 2.0,
           ),
-          CustomFilledButton(
+          CustomLoadingFilledButton(
             onTap: () => _login(),
             text: 'Sign in',
+            isLoadingNotifier: _isLoading,
             height: SizingConfig.heightMultiplier * 6,
           ),
           SizedBox(

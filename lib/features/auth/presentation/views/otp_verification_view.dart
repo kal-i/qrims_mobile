@@ -5,6 +5,7 @@ import '../../../../config/sizing/sizing_config.dart';
 import '../../../../config/themes/app_theme.dart';
 import '../../../../config/themes/bloc/theme_bloc.dart';
 import '../../../../core/common/components/custom_filled_button.dart';
+import '../../../../core/common/components/custom_loading_filled_button.dart';
 import '../../../../core/common/components/custom_outline_button.dart';
 import '../../../../core/enums/verification_purpose.dart';
 import '../../../../core/utils/delightful_toast_utils.dart';
@@ -36,12 +37,15 @@ class _OtpVerificationViewState extends State<OtpVerificationView> {
   final _thirdCodeController = TextEditingController();
   final _fourthCodeController = TextEditingController();
 
+  final ValueNotifier<bool> _isLoading = ValueNotifier(false);
+
   @override
   void dispose() {
     _firstCodeController.dispose();
     _secondCodeController.dispose();
     _thirdCodeController.dispose();
     _fourthCodeController.dispose();
+    _isLoading.dispose();
     super.dispose();
   }
 
@@ -69,7 +73,13 @@ class _OtpVerificationViewState extends State<OtpVerificationView> {
 
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) async {
+        if (state is AuthLoading) {
+          _isLoading.value = true;
+        }
+
+
         if (state is AuthFailure) {
+          _isLoading.value = false;
           DelightfulToastUtils.showDelightfulToast(
             context: context,
             icon: Icons.error_outline,
@@ -84,6 +94,7 @@ class _OtpVerificationViewState extends State<OtpVerificationView> {
         }
 
         if (state is OtpSent) {
+          _isLoading.value = false;
           DelightfulToastUtils.showDelightfulToast(
             context: context,
             icon: Icons.check_circle_outline,
@@ -93,6 +104,7 @@ class _OtpVerificationViewState extends State<OtpVerificationView> {
         }
 
         if (state is AuthSuccess) {
+          _isLoading.value = false;
           print('otp ver. success');
           if (widget.purpose == VerificationPurpose.resetPassword) {
             context.go(
@@ -135,16 +147,16 @@ class _OtpVerificationViewState extends State<OtpVerificationView> {
           style: Theme.of(context).textTheme.titleLarge,
         ),
         SizedBox(
-          height: SizingConfig.heightMultiplier * 2.0,
+          height: SizingConfig.heightMultiplier * 1.0,
         ),
         Text(
-          'Please check your email for a verification code sent to',
+          'Please check your email for a verification code sent to:',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
             fontWeight: FontWeight.w500,
           ),
         ),
         SizedBox(
-          height: SizingConfig.heightMultiplier * 2.0,
+          height: SizingConfig.heightMultiplier * 1.0,
         ),
         Row(
           children: [
@@ -225,9 +237,10 @@ class _OtpVerificationViewState extends State<OtpVerificationView> {
           width: SizingConfig.heightMultiplier * 2.0,
         ),
         Expanded(
-          child: CustomFilledButton(
+          child: CustomLoadingFilledButton(
             onTap: () => _verifyOtp(),
             text: 'Submit Code',
+            isLoadingNotifier: _isLoading,
             height: SizingConfig.heightMultiplier * 6,
           ),
         ),
