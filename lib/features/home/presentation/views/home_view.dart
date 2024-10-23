@@ -21,32 +21,31 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: SizingConfig.widthMultiplier * 5.0,
-              vertical: SizingConfig.heightMultiplier * 3.0,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildHeaderRow(),
-                SizedBox(
-                  height: SizingConfig.heightMultiplier * 3.0,
-                ),
-                SizedBox(
-                  height: SizingConfig.heightMultiplier * 23.0,
-                  child: _buildSummaryReportsContainer(),
-                ),
-                SizedBox(
-                  height: SizingConfig.heightMultiplier * 3.0,
-                ),
-                SizedBox(
-                  height: SizingConfig.heightMultiplier * 20.0,
-                  child: _buildPendingRequestsView(),
-                ),
-              ],
-            ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: SizingConfig.widthMultiplier * 5.0,
+            vertical: SizingConfig.heightMultiplier * 3.0,
+          ),
+          child: Column(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildHeaderRow(),
+                  SizedBox(
+                    height: SizingConfig.heightMultiplier * 3.0,
+                  ),
+                  SizedBox(
+                    height: SizingConfig.heightMultiplier * 23.0,
+                    child: _buildSummaryReportsContainer(),
+                  ),
+                  SizedBox(
+                    height: SizingConfig.heightMultiplier * 3.0,
+                  ),
+                  Expanded(child: _buildPendingRequestsView()),
+                ],
+              ),
+            ],
           ),
         ),
       ),

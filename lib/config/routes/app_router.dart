@@ -9,7 +9,7 @@ import '../../features/auth/presentation/views/otp_verification_view.dart';
 import '../../features/auth/presentation/views/register_view.dart';
 import '../../features/auth/presentation/views/set_new_password_view.dart';
 import '../../features/auth/presentation/views/unauthorized_view.dart';
-import '../../features/notification/presentation/views/notification_view.dart';
+import '../../features/notification/presentation/views/notifications_view.dart';
 import '../../features/profile/presentation/views/profile_view.dart';
 import '../../features/qr_scanner/presentation/views/qr_scanner_view.dart';
 import '../../features/settings/presentation/views/settings_view.dart';
@@ -113,7 +113,7 @@ class AppRoutingConfig {
               GoRoute(
                 name: RoutingConstants.notificationViewRouteName,
                 path: RoutingConstants.notificationViewRoutePath,
-                builder: (context, state) => const NotificationView(),
+                builder: (context, state) => const NotificationsView(),
               ),
             ],
           ),
