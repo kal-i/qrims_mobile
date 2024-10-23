@@ -1,6 +1,6 @@
-import '../entities/user.dart';
-import 'supply_department_employee.dart';
+import '../../entities/user/user.dart';
 import 'mobile_user.dart';
+import 'supply_department_employee.dart';
 
 abstract class UserModel extends UserEntity {
   const UserModel({

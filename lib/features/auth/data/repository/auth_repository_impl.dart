@@ -1,13 +1,13 @@
 import 'package:fpdart/fpdart.dart';
 
-import '../../../../core/entities/user.dart';
-import '../../../../core/enums/role.dart';
+import '../../../../core/entities/user/user.dart';
+import '../../../../core/enums/admin_approval_status.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failure.dart';
-import '../../../../core/models/supply_department_employee.dart';
+import '../../../../core/models/user/mobile_user.dart';
+import '../../../../core/models/user/supply_department_employee.dart';
 import '../../domain/repository/auth_repository.dart';
 import '../data_sources/remote/auth_remote_data_source.dart';
-import '../../../../core/models/mobile_user.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   const AuthRepositoryImpl({
@@ -21,12 +21,16 @@ class AuthRepositoryImpl implements AuthRepository {
   /// UserEntity is a parent of UserModel
   @override
   Future<Either<Failure, UserEntity>> register({
+    required String office,
+    required String position,
     required String name,
     required String email,
     required String password,
   }) async {
     try {
       final userModel = await remoteDataSource.register(
+        office: office,
+        position: position,
         name: name,
         email: email,
         password: password,
@@ -138,9 +142,19 @@ class AuthRepositoryImpl implements AuthRepository {
       );
 
       // Authorization
-      if (userModel is SupplyDepartmentEmployeeModel) {
-        throw const ServerException('Unauthorized User.');
-      }
+      // if (userModel is SupplyDepartmentEmployeeModel) {
+      //   throw const ServerException('Unauthorized User.');
+      // }
+      //
+      // if (userModel is MobileUserModel) {
+      //   if (userModel.adminApprovalStatus == AdminApprovalStatus.pending) {
+      //     throw const ServerException('Pending admin approval request.');
+      //   }
+      //
+      //   if (userModel.adminApprovalStatus == AdminApprovalStatus.rejected) {
+      //     throw const ServerException('Rejected admin Approval request.');
+      //   }
+      // }
 
       print(userModel);
 

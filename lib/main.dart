@@ -1,7 +1,7 @@
 import 'package:device_preview/device_preview.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'config/routes/app_router.dart';
 import 'config/sizing/sizing_config.dart';
@@ -10,7 +10,8 @@ import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/components/custom_auth_password_text_box/bloc/custom_auth_password_text_box_bloc.dart';
 import 'injection_container.dart';
 
-void main() async {
+Future<void> main() async {
+  await dotenv.load(); // by default , this loads the .env file
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDependencies();
 

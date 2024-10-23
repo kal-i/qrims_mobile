@@ -1,6 +1,6 @@
 import 'package:fpdart/fpdart.dart';
 
-import '../../../../core/entities/user.dart';
+import '../../../../core/entities/user/user.dart';
 import '../../../../core/enums/role.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/usecases/usecase.dart';
@@ -35,9 +35,10 @@ class UserRegister implements UseCase<UserEntity, UserRegisterParams> {
 
   @override
   Future<Either<Failure, UserEntity>> call(UserRegisterParams params) async {
-    print('auc: ${params.role}');
 
     return await authRepository.register(
+      office: params.office,
+      position: params.position,
       name: params.name,
       email: params.email,
       password: params.password,
@@ -47,14 +48,16 @@ class UserRegister implements UseCase<UserEntity, UserRegisterParams> {
 
 class UserRegisterParams {
   const UserRegisterParams({
+    required this.office,
+    required this.position,
     required this.name,
     required this.email,
     required this.password,
-    this.role,
   });
 
+  final String office;
+  final String position;
   final String name;
   final String email;
   final String password;
-  final Role? role;
 }

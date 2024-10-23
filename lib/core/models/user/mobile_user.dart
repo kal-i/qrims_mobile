@@ -1,8 +1,8 @@
-import 'dart:convert';
-
-import '../enums/auth_status.dart';
-import '../entities/mobile_user.dart';
+import '../../enums/admin_approval_status.dart';
+import '../org/officer.dart';
 import 'user.dart';
+import '../../enums/auth_status.dart';
+import '../../entities/user/mobile_user.dart';
 
 class MobileUserModel extends MobileUserEntity implements UserModel {
   const MobileUserModel({
@@ -18,6 +18,8 @@ class MobileUserModel extends MobileUserEntity implements UserModel {
     super.otpExpiry,
     super.profileImage,
     required super.mobileUserId,
+    required super.officerEntity,
+    super.adminApprovalStatus,
   });
 
   factory MobileUserModel.fromJson(Map<String, dynamic> json) {
@@ -40,6 +42,10 @@ class MobileUserModel extends MobileUserEntity implements UserModel {
 
     print('AuthStatus after conversion: $authStatus');
 
+    final adminApprovalStatus = AdminApprovalStatus.values.firstWhere(
+      (e) => e.toString().split('.').last == json['admin_approval_status'],
+    );
+
     return MobileUserModel(
       id: json['user_id'],
       name: json['name'],
@@ -61,6 +67,8 @@ class MobileUserModel extends MobileUserEntity implements UserModel {
           ? json['profile_image'] as String
           : null,
       mobileUserId: json['mobile_user_id'],
+      officerEntity: OfficerModel.fromJson(json['officer']),
+      adminApprovalStatus: adminApprovalStatus,
     );
   }
 
@@ -73,6 +81,7 @@ class MobileUserModel extends MobileUserEntity implements UserModel {
       createdAt: mobileUserEntity.createdAt,
       profileImage: mobileUserEntity.profileImage,
       mobileUserId: mobileUserEntity.mobileUserId,
+      officerEntity: mobileUserEntity.officerEntity,
     );
   }
 
@@ -91,6 +100,8 @@ class MobileUserModel extends MobileUserEntity implements UserModel {
       'otp_expiry': otpExpiry,
       'profile_image': profileImage,
       'mobile_user_id': mobileUserId,
+      'officer': (officerEntity as OfficerModel).toJson(),
+      'admin_approval_status': adminApprovalStatus.toString().split('.').last,
     };
   }
 }

@@ -1,4 +1,4 @@
-import '../../../../core/entities/user.dart';
+import '../../../../core/entities/user/user.dart';
 import '../../../../core/error/failure.dart';
 import 'package:fpdart/src/either.dart';
 

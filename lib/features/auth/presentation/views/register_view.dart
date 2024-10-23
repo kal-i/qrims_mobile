@@ -6,7 +6,10 @@ import 'package:hugeicons/hugeicons.dart';
 import '../../../../config/routes/app_routing_constants.dart';
 import '../../../../config/sizing/sizing_config.dart';
 import '../../../../core/common/components/custom_loading_filled_button.dart';
+import '../../../../core/common/components/custom_search_field.dart';
+import '../../../../core/services/org_suggestions_service.dart';
 import '../../../../core/utils/delightful_toast_utils.dart';
+import '../../../../injection_container.dart';
 import '../components/custom_auth_password_text_box/custom_auth_password_text_box.dart';
 import '../../../../core/common/components/custom_text_box.dart';
 import '../components/custom_email_text_box.dart';
@@ -21,18 +24,33 @@ class RegisterView extends StatefulWidget {
 }
 
 class _RegisterViewState extends State<RegisterView> {
+  late OfficerSuggestionsService _officerSuggestionsService;
+
   final _formKey = GlobalKey<FormState>();
+  final _officeController = TextEditingController();
+  final _positionController = TextEditingController();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
   final ValueNotifier<bool> _isLoading = ValueNotifier(false);
+  final ValueNotifier<String?> _selectedOffice = ValueNotifier(null);
+
+  @override
+  void initState() {
+    super.initState();
+    _officerSuggestionsService = serviceLocator<OfficerSuggestionsService>();
+  }
 
   @override
   void dispose() {
+    _officeController.dispose();
+    _positionController.dispose();
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+
+    _selectedOffice.dispose();
     _isLoading.dispose();
     super.dispose();
   }
@@ -41,6 +59,8 @@ class _RegisterViewState extends State<RegisterView> {
     if (_formKey.currentState!.validate()) {
       context.read<AuthBloc>().add(
             AuthRegister(
+              office: _officeController.text,
+              position: _positionController.text,
               name: _nameController.text,
               email: _emailController.text,
               password: _passwordController.text,
@@ -120,34 +140,103 @@ class _RegisterViewState extends State<RegisterView> {
   Widget _buildForm() {
     return Form(
       key: _formKey,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _buildFormHeader(),
-          SizedBox(
-            height: SizingConfig.heightMultiplier * 1.0,
-          ),
-          CustomTextBox(
-            height: SizingConfig.heightMultiplier * 12,
-            controller: _nameController,
-            placeHolderText: 'name',
-            prefixIcon: HugeIcons.strokeRoundedUser,
-          ),
-          SizedBox(
-            height: SizingConfig.heightMultiplier * 1.0,
-          ),
-          CustomEmailTextBox(
-            controller: _emailController,
-          ),
-          SizedBox(
-            height: SizingConfig.heightMultiplier * 1.0,
-          ),
-          CustomAuthPasswordTextBox(
-            placeHolderText: 'password',
-            controller: _passwordController,
-          ),
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildFormHeader(),
+            SizedBox(
+              height: SizingConfig.heightMultiplier * 1.0,
+            ),
+            _buildOfficeSuggestionField(),
+            SizedBox(
+              height: SizingConfig.heightMultiplier * 1.0,
+            ),
+            _buildPositionSuggestionField(),
+            SizedBox(
+              height: SizingConfig.heightMultiplier * 1.0,
+            ),
+            CustomTextBox(
+              height: SizingConfig.heightMultiplier * 12,
+              controller: _nameController,
+              placeHolderText: 'name',
+              prefixIcon: HugeIcons.strokeRoundedUser,
+            ),
+            SizedBox(
+              height: SizingConfig.heightMultiplier * 1.0,
+            ),
+            CustomEmailTextBox(
+              controller: _emailController,
+            ),
+            SizedBox(
+              height: SizingConfig.heightMultiplier * 1.0,
+            ),
+            CustomAuthPasswordTextBox(
+              placeHolderText: 'password',
+              controller: _passwordController,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOfficeSuggestionField() {
+    return CustomSearchField(
+      suggestionsCallback: (officeName) async {
+        final offices = await _officerSuggestionsService.fetchOffices(
+          officeName: officeName,
+        );
+
+        if (offices == null) {
+          _officeController.clear();
+          _positionController.clear();
+          _selectedOffice.value = null;
+        }
+
+        return offices;
+      },
+      onSelected: (value) {
+        _officeController.text = value;
+        _positionController.clear();
+
+        _selectedOffice.value = value;
+      },
+      controller: _officeController,
+      placeholder: 'Office',
+      prefixIcon: HugeIcons.strokeRoundedOffice,
+    );
+  }
+
+  Widget _buildPositionSuggestionField() {
+    return SizedBox(
+      height: SizingConfig.heightMultiplier * 12,
+      child: ValueListenableBuilder(
+        valueListenable: _selectedOffice,
+        builder: (context, selectedOffice, child) {
+          return CustomSearchField(
+            key: ValueKey(selectedOffice),
+            suggestionsCallback: (String? position) async {
+              if (selectedOffice != null && selectedOffice.isNotEmpty) {
+                final positions =
+                await _officerSuggestionsService.fetchOfficePositions(
+                  officeName: selectedOffice,
+                  positionName: position,
+                );
+
+                return positions;
+              }
+              return null;
+            },
+            onSelected: (value) {
+              _positionController.text = value;
+            },
+            controller: _positionController,
+            placeholder: 'Position',
+            prefixIcon: HugeIcons.strokeRoundedBriefcase01,
+          );
+        },
       ),
     );
   }

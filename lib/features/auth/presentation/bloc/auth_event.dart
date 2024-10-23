@@ -10,11 +10,15 @@ sealed class AuthEvent extends Equatable {
 /// We're attaching data to our event since it is the one we'll trigger
 final class AuthRegister extends AuthEvent {
   const AuthRegister({
+    required this.office,
+    required this.position,
     required this.name,
     required this.email,
     required this.password,
   });
 
+  final String office;
+  final String position;
   final String name;
   final String email;
   final String password;

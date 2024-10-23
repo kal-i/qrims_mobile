@@ -68,6 +68,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     final response = await _userRegister(
       UserRegisterParams(
+        office: event.office,
+        position: event.position,
         name: event.name,
         email: event.email,
         password: event.password,
@@ -94,6 +96,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (l) {
         if (l.message.contains('User is not authenticated.')) {
           emit(OtpRequired(email: event.email));
+        } else if (l.message.contains(
+            'Your account is awaiting admin approval. Please check back later or contact support for further assistance.')) {
+          emit(AdminApprovalRequired());
         } else {
           emit(AuthFailure(message: l.message));
         }

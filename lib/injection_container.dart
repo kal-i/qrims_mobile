@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'core/services/http_service.dart';
 
 // Authentication
+import 'core/services/org_suggestions_service.dart';
 import 'features/auth/data/data_sources/remote/auth_remote_data_source.dart';
 import 'features/auth/data/data_sources/remote/auth_remote_data_source_impl.dart';
 import 'features/auth/data/repository/auth_repository_impl.dart';
@@ -22,6 +23,8 @@ final serviceLocator = GetIt.instance;
 
 Future<void> initializeDependencies() async {
   _registerCoreDependencies();
+  _registerServicesDependencies();
+
   _registerAuthDependencies();
 }
 
@@ -31,6 +34,10 @@ void _registerCoreDependencies() {
   serviceLocator.registerSingleton<HttpService>(HttpService(serviceLocator()));
 }
 
+void _registerServicesDependencies() {
+  serviceLocator.registerSingleton<OfficerSuggestionsService>(
+      OfficerSuggestionsService(httpService: serviceLocator()));
+}
 
 /// Authentication
 void _registerAuthDependencies() {

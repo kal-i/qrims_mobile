@@ -1,10 +1,11 @@
-import '../../../../../core/enums/role.dart';
-import '../../../../../core/models/user.dart';
+import '../../../../../core/models/user/user.dart';
 
 /// A contract
 /// This interface is only concerned with the calls made to the external db
 abstract interface class AuthRemoteDataSource {
   Future<UserModel> register({
+    required String office,
+    required String position,
     required String name,
     required String email,
     required String password,

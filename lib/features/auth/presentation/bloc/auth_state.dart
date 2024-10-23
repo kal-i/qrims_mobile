@@ -37,6 +37,8 @@ final class AuthSuccess<T> extends AuthState {
 //   List<Object> get props => [userEntity];
 // }
 
+final class AdminApprovalRequired extends AuthState {}
+
 final class AuthFailure extends AuthState {
   const AuthFailure({
     required this.message,

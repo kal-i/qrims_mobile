@@ -64,6 +64,10 @@ class _LoginViewState extends State<LoginView> {
             subtitle: state.message,
           );
         }
+        
+        if (state is AdminApprovalRequired) {
+          context.go(RoutingConstants.unAuthorizedViewRoutePath);
+        }
 
         // we need to change the redirection of user to otp ver if we
         if (state is OtpRequired) {

@@ -2,7 +2,7 @@
 // use ['ipconfig'] to check ip address
 
 /// auth endpoints
-const baseUrl = 'http://192.168.1.18:8080';
+const baseUrl = '8080';
 const authEP = '/authentication';
 const basicAuthEP = '$authEP/basic';
 const registerEP = '$basicAuthEP/register';

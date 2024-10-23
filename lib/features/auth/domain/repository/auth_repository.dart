@@ -1,11 +1,12 @@
 import 'package:fpdart/fpdart.dart';
 
-import '../../../../core/entities/user.dart';
-import '../../../../core/enums/role.dart';
+import '../../../../core/entities/user/user.dart';
 import '../../../../core/error/failure.dart';
 
 abstract interface class AuthRepository {
   Future<Either<Failure, UserEntity>> register({
+    required String office,
+    required String position,
     required String name,
     required String email,
     required String password,

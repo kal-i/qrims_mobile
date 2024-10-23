@@ -1,8 +1,9 @@
-import '../../../../core/enums/role.dart';
+import '../../enums/admin_approval_status.dart';
+import '../org/officer.dart';
 import 'user.dart';
 
-class SupplyDepartmentEmployeeEntity extends UserEntity {
-  const SupplyDepartmentEmployeeEntity({
+class MobileUserEntity extends UserEntity {
+  const MobileUserEntity({
     required super.id,
     required super.name,
     required super.email,
@@ -14,12 +15,14 @@ class SupplyDepartmentEmployeeEntity extends UserEntity {
     super.otp,
     super.otpExpiry,
     super.profileImage,
-    required this.employeeId,
-    required this.role,
+    required this.mobileUserId,
+    required this.officerEntity,
+    this.adminApprovalStatus = AdminApprovalStatus.pending,
   });
 
-  final String employeeId;
-  final Role role;
+  final String mobileUserId;
+  final OfficerEntity officerEntity;
+  final AdminApprovalStatus adminApprovalStatus;
 
   @override
   List<Object?> get props => [
@@ -34,7 +37,6 @@ class SupplyDepartmentEmployeeEntity extends UserEntity {
         otp,
         otpExpiry,
         profileImage,
-        employeeId,
-        role,
+        mobileUserId,
       ];
 }

@@ -1,6 +1,5 @@
-import 'dart:convert';
-
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import '../constants/app_constants.dart';
 
@@ -9,7 +8,7 @@ class HttpService {
   String? bearerToken;
 
   HttpService(this.dio) {
-    dio.options.baseUrl = baseUrl;
+    dio.options.baseUrl = 'http://${dotenv.env['IPv4_ADDRESS']}:$baseUrl';
     dio.options.headers['Content-Type'] = 'application/json';
 
     dio.interceptors.add(

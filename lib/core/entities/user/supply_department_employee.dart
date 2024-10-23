@@ -1,7 +1,8 @@
 import 'user.dart';
+import '../../../../../core/enums/role.dart';
 
-class MobileUserEntity extends UserEntity {
-  const MobileUserEntity({
+class SupplyDepartmentEmployeeEntity extends UserEntity {
+  const SupplyDepartmentEmployeeEntity({
     required super.id,
     required super.name,
     required super.email,
@@ -13,10 +14,12 @@ class MobileUserEntity extends UserEntity {
     super.otp,
     super.otpExpiry,
     super.profileImage,
-    required this.mobileUserId,
+    required this.employeeId,
+    required this.role,
   });
 
-  final String mobileUserId;
+  final String employeeId;
+  final Role role;
 
   @override
   List<Object?> get props => [
@@ -31,6 +34,7 @@ class MobileUserEntity extends UserEntity {
         otp,
         otpExpiry,
         profileImage,
-        mobileUserId,
+        employeeId,
+        role,
       ];
 }

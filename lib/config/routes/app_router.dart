@@ -8,6 +8,8 @@ import '../../features/auth/presentation/views/login_view.dart';
 import '../../features/auth/presentation/views/otp_verification_view.dart';
 import '../../features/auth/presentation/views/register_view.dart';
 import '../../features/auth/presentation/views/set_new_password_view.dart';
+import '../../features/auth/presentation/views/unauthorized_view.dart';
+import '../../features/notification/presentation/views/notification_view.dart';
 import '../../features/profile/presentation/views/profile_view.dart';
 import '../../features/qr_scanner/presentation/views/qr_scanner_view.dart';
 import '../../features/settings/presentation/views/settings_view.dart';
@@ -46,6 +48,12 @@ class AppRoutingConfig {
             path: RoutingConstants.registerViewRoutePath,
             pageBuilder: (context, state) =>
             const MaterialPage(child: RegisterView()),
+          ),
+          GoRoute(
+            name: RoutingConstants.unAuthorizedViewRouteName,
+            path: RoutingConstants.unAuthorizedViewRoutePath,
+            pageBuilder: (context, state) =>
+            const MaterialPage(child: UnauthorizedView()),
           ),
           GoRoute(
             name: RoutingConstants.changeEmailViewRouteName,
@@ -105,7 +113,7 @@ class AppRoutingConfig {
               GoRoute(
                 name: RoutingConstants.notificationViewRouteName,
                 path: RoutingConstants.notificationViewRoutePath,
-                builder: (context, state) => const HomeView(),
+                builder: (context, state) => const NotificationView(),
               ),
             ],
           ),

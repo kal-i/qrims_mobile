@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import '../entities/supply_department_employee.dart';
-import '../enums/auth_status.dart';
-import '../enums/role.dart';
+import '../../entities/user/supply_department_employee.dart';
+import '../../enums/auth_status.dart';
+import '../../enums/role.dart';
 import 'user.dart';
 
 class SupplyDepartmentEmployeeModel extends SupplyDepartmentEmployeeEntity

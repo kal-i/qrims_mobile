@@ -2,12 +2,11 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../../core/services/http_service.dart';
 import '../../../../../core/constants/app_constants.dart';
 import '../../../../../core/enums/auth_status.dart';
-import '../../../../../core/enums/role.dart';
 import '../../../../../core/error/exceptions.dart';
-import '../../../../../core/models/user.dart';
-import '../../../../../core/services/http_service.dart';
+import '../../../../../core/models/user/user.dart';
 import 'auth_remote_data_source.dart';
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -19,12 +18,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<UserModel> register({
+    required String office,
+    required String position,
     required String name,
     required String email,
     required String password,
   }) async {
     try {
       Map<String, dynamic> params = {
+        'office_name': office,
+        'position_name': position,
         'name': name,
         'email': email,
         'password': password
@@ -33,7 +36,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       print('RemoteDataSource register params: $params');
 
       final response = await httpService.post(
-        endpoint: registerEP,
+        endpoint: bearerAuthEP,
         params: params,
       );
 
@@ -363,17 +366,17 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         final userModel = UserModel.fromJson(responseData['user']);
         print(userModel);
 
-        if (userModel.isArchived) {
-          throw const ServerException('User account is archived.');
-        }
-
-        if (userModel.authStatus == AuthStatus.unauthenticated) {
-          throw const ServerException('User is not authenticated.');
-        }
-
-        if (userModel.authStatus == AuthStatus.revoked) {
-          throw const ServerException('User access is denied.');
-        }
+        // if (userModel.isArchived) {
+        //   throw const ServerException('User account is archived.');
+        // }
+        //
+        // if (userModel.authStatus == AuthStatus.unauthenticated) {
+        //   throw const ServerException('User is not authenticated.');
+        // }
+        //
+        // if (userModel.authStatus == AuthStatus.revoked) {
+        //   throw const ServerException('User access is denied.');
+        // }
 
         print(token);
         await storeToken(token: token);

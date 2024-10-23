@@ -5,6 +5,9 @@ class RoutingConstants {
   static const registerViewRouteName = 'registerView';
   static const registerViewRoutePath = '/register';
 
+  static const unAuthorizedViewRouteName = 'unauthorizedView';
+  static const unAuthorizedViewRoutePath = '/unauthorized';
+
   static const changeEmailViewRouteName = 'changeEmailView';
   static const changeEmailViewRoutePath = '/changeEmail';
 
@@ -17,12 +20,12 @@ class RoutingConstants {
   static const homeViewRouteName = 'homeView';
   static const homeViewRoutePath = '/home';
 
+  static const notificationViewRouteName = 'notificationView';
+  static const notificationViewRoutePath = '/notification';
+
   static const qrScannerViewRouteName = 'qrScannerView';
   static const qrScannerViewRoutePath = '/qrScanner';
   //static const nestedQrScannerViewRoutePath = '$homeViewRoutePath/$qrScannerViewRoutePath';
-
-  static const notificationViewRouteName = 'notificationView';
-  static const notificationViewRoutePath = '/notification';
 
   static const historyViewRouteName = 'historyView';
   static const historyViewRoutePath = '/history';
