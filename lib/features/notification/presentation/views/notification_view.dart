@@ -9,6 +9,7 @@ class NotificationView extends StatefulWidget {
   State<NotificationView> createState() => _NotificationViewState();
 }
 
+// todo:
 class _NotificationViewState extends State<NotificationView> {
   @override
   Widget build(BuildContext context) {
