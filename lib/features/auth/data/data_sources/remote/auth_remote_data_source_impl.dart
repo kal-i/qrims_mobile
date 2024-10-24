@@ -91,62 +91,63 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String email,
     required String password,
   }) async {
-    try {
-      Map<String, dynamic> params = {
-        'email': email,
-        'password': password,
-      };
-
-      final response = await httpService.post(
-        endpoint: loginEP,
-        params: params,
-      );
-
-      if (response.data == null) {
-        throw const ServerException('User not found.');
-      }
-
-      if (response.statusCode == 200) {
-        final userJson = response.data as Map<String, dynamic>;
-        final userModel = UserModel.fromJson(userJson);
-
-        print('auth remote ds imp: $userModel');
-
-        if (userModel.authStatus == AuthStatus.unauthenticated) {
-          throw const ServerException('User is not authenticated.');
-        }
-
-        return userModel;
-      } else {
-        throw ServerException(response.statusMessage.toString());
-      }
-    } on DioException catch (e) {
-      if (e.response != null) {
-        if (e.response?.data is String) {
-          throw ServerException(
-              e.response?.data
-          );
-        }
-
-        final errorData = e.response?.data as Map<String, dynamic>;
-        final errorMessage = errorData['message'] ?? e.response?.statusMessage;
-
-        if (e.response?.statusCode == HttpStatus.unauthorized &&
-            errorMessage == 'Invalid user credential.') {
-          throw const ServerException('Invalid user credential.');
-        }
-        throw ServerException(
-          'DioException: ${e.response?.statusCode} - ${e.response?.statusMessage}',
-        );
-      } else {
-        throw ServerException(
-          'DioException: ${e.message}',
-        );
-      }
-    } catch (e) {
-      print('RemoteDataSource Exception: $e');
-      throw ServerException(e.toString());
-    }
+    throw UnimplementedError();
+    // try {
+    //   Map<String, dynamic> params = {
+    //     'email': email,
+    //     'password': password,
+    //   };
+    //
+    //   final response = await httpService.post(
+    //     endpoint: loginEP,
+    //     params: params,
+    //   );
+    //
+    //   if (response.data == null) {
+    //     throw const ServerException('User not found.');
+    //   }
+    //
+    //   if (response.statusCode == 200) {
+    //     final userJson = response.data as Map<String, dynamic>;
+    //     final userModel = UserModel.fromJson(userJson);
+    //
+    //     print('auth remote ds imp: $userModel');
+    //
+    //     if (userModel.authStatus == AuthStatus.unauthenticated) {
+    //       throw const ServerException('User is not authenticated.');
+    //     }
+    //
+    //     return userModel;
+    //   } else {
+    //     throw ServerException(response.statusMessage.toString());
+    //   }
+    // } on DioException catch (e) {
+    //   if (e.response != null) {
+    //     if (e.response?.data is String) {
+    //       throw ServerException(
+    //           e.response?.data
+    //       );
+    //     }
+    //
+    //     final errorData = e.response?.data as Map<String, dynamic>;
+    //     final errorMessage = errorData['message'] ?? e.response?.statusMessage;
+    //
+    //     if (e.response?.statusCode == HttpStatus.unauthorized &&
+    //         errorMessage == 'Invalid user credential.') {
+    //       throw const ServerException('Invalid user credential.');
+    //     }
+    //     throw ServerException(
+    //       'DioException: ${e.response?.statusCode} - ${e.response?.statusMessage}',
+    //     );
+    //   } else {
+    //     throw ServerException(
+    //       'DioException: ${e.message}',
+    //     );
+    //   }
+    // } catch (e) {
+    //   print('RemoteDataSource Exception: $e');
+    //   throw ServerException(e.toString());
+    // }
   }
 
   @override
@@ -393,14 +394,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           );
         }
 
-        print('err: ${e.response?.data}');
         final errorData = e.response?.data as Map<String, dynamic>;
         final errorMessage = errorData['message'] ?? e.response?.statusMessage;
 
         if (e.response?.statusCode == HttpStatus.unauthorized &&
-            errorMessage == 'Invalid user credential.') {
+            errorMessage == 'Invalid user credential. Please check your email or password and try again.') {
           throw const ServerException(
-            'Invalid user credential.',
+            'Invalid user credential. Please check your email or password and try again.',
           );
         }
         throw ServerException(
