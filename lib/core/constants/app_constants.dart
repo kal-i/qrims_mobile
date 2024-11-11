@@ -38,4 +38,9 @@ const officersEP = '/officers';
 const officerNamesEP = '$officersEP/names';
 
 const entitiesEP = '/entities';
+
 const purchaseRequestsEP = '/purchase_requests';
+const purchaseRequestIdEP = '$purchaseRequestsEP/id';
+const requestingOfficerPurchaseRequestsEP = '$purchaseRequestsEP/receiving_officer';
+
+const notificationsEP = '/notifications';

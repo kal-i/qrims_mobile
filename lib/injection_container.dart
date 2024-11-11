@@ -18,6 +18,12 @@ import 'features/auth/domain/usecases/user_send_otp.dart';
 import 'features/auth/domain/usecases/user_update_info.dart';
 import 'features/auth/domain/usecases/user_verify_otp.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
+import 'features/notification/data/data_sources/remote/notification_remote_data_source.dart';
+import 'features/notification/data/data_sources/remote/notification_remote_data_source_impl.dart';
+import 'features/notification/data/repository/notification_repository_impl.dart';
+import 'features/notification/domain/repository/notification_repository.dart';
+import 'features/notification/domain/usecases/get_notifications.dart';
+import 'features/notification/presentation/bloc/notifications_bloc.dart';
 
 final serviceLocator = GetIt.instance;
 
@@ -26,6 +32,7 @@ Future<void> initializeDependencies() async {
   _registerServicesDependencies();
 
   _registerAuthDependencies();
+  _registerNotificationDependencies();
 }
 
 /// Core Services
@@ -42,45 +49,45 @@ void _registerServicesDependencies() {
 /// Authentication
 void _registerAuthDependencies() {
   serviceLocator.registerFactory<AuthRemoteDataSource>(
-        () => AuthRemoteDataSourceImpl(httpService: serviceLocator()),
+    () => AuthRemoteDataSourceImpl(httpService: serviceLocator()),
   );
 
   serviceLocator.registerFactory<AuthRepository>(
-        () => AuthRepositoryImpl(remoteDataSource: serviceLocator()),
+    () => AuthRepositoryImpl(remoteDataSource: serviceLocator()),
   );
 
   serviceLocator.registerFactory<UserRegister>(
-        () => UserRegister(authRepository: serviceLocator()),
+    () => UserRegister(authRepository: serviceLocator()),
   );
 
   serviceLocator.registerFactory<UserLogin>(
-        () => UserLogin(authRepository: serviceLocator()),
+    () => UserLogin(authRepository: serviceLocator()),
   );
 
   serviceLocator.registerFactory<UserSendOtp>(
-        () => UserSendOtp(authRepository: serviceLocator()),
+    () => UserSendOtp(authRepository: serviceLocator()),
   );
 
   serviceLocator.registerFactory<UserVerifyOtp>(
-        () => UserVerifyOtp(authRepository: serviceLocator()),
+    () => UserVerifyOtp(authRepository: serviceLocator()),
   );
 
   serviceLocator.registerFactory<UserResetPassword>(
-        () => UserResetPassword(authRepository: serviceLocator()),
+    () => UserResetPassword(authRepository: serviceLocator()),
   );
 
   serviceLocator.registerFactory<UserLogout>(
-        () => UserLogout(authRepository: serviceLocator()),
+    () => UserLogout(authRepository: serviceLocator()),
   );
 
   serviceLocator.registerFactory<UserUpdateInfo>(
-        () => UserUpdateInfo(
+    () => UserUpdateInfo(
       authRepository: serviceLocator(),
     ),
   );
 
   serviceLocator.registerLazySingleton<AuthBloc>(
-        () => AuthBloc(
+    () => AuthBloc(
       userRegister: serviceLocator(),
       userLogin: serviceLocator(),
       userSendOtp: serviceLocator(),
@@ -88,6 +95,27 @@ void _registerAuthDependencies() {
       userResetPassword: serviceLocator(),
       userLogout: serviceLocator(),
       userUpdateInfo: serviceLocator(),
+    ),
+  );
+}
+
+void _registerNotificationDependencies() {
+  serviceLocator.registerFactory<NotificationRemoteDataSource>(
+    () => NotificationRemoteDataSourceImpl(httpService: serviceLocator()),
+  );
+
+  serviceLocator.registerFactory<NotificationRepository>(
+    () => NotificationRepositoryImpl(
+        notificationRemoteDataSource: serviceLocator()),
+  );
+
+  serviceLocator.registerFactory<GetNotifications>(
+    () => GetNotifications(notificationRepository: serviceLocator()),
+  );
+
+  serviceLocator.registerFactory<NotificationsBloc>(
+    () => NotificationsBloc(
+      getNotifications: serviceLocator(),
     ),
   );
 }

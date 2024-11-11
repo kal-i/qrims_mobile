@@ -19,8 +19,11 @@ import 'app_routing_constants.dart';
 
 class AppRoutingConfig {
   static final _rootNavigatorKey =
-  GlobalKey<NavigatorState>(debugLabel: 'root');
-  static final _baseAuthShellNavigationKey = GlobalKey<NavigatorState>(debugLabel: 'auth');
+      GlobalKey<NavigatorState>(debugLabel: 'root');
+  static final _baseAuthShellNavigationKey =
+      GlobalKey<NavigatorState>(debugLabel: 'auth');
+  static final _baseNavigationShellKey =
+      GlobalKey<NavigatorState>(debugLabel: 'base nav');
 
   static final router = GoRouter(
     debugLogDiagnostics: true,
@@ -41,19 +44,19 @@ class AppRoutingConfig {
             name: RoutingConstants.loginViewRouteName,
             path: RoutingConstants.loginViewRoutePath,
             pageBuilder: (context, state) =>
-            const MaterialPage(child: LoginView()),
+                const MaterialPage(child: LoginView()),
           ),
           GoRoute(
             name: RoutingConstants.registerViewRouteName,
             path: RoutingConstants.registerViewRoutePath,
             pageBuilder: (context, state) =>
-            const MaterialPage(child: RegisterView()),
+                const MaterialPage(child: RegisterView()),
           ),
           GoRoute(
             name: RoutingConstants.unAuthorizedViewRouteName,
             path: RoutingConstants.unAuthorizedViewRoutePath,
             pageBuilder: (context, state) =>
-            const MaterialPage(child: UnauthorizedView()),
+                const MaterialPage(child: UnauthorizedView()),
           ),
           GoRoute(
             name: RoutingConstants.changeEmailViewRouteName,
@@ -69,7 +72,7 @@ class AppRoutingConfig {
             path: RoutingConstants.otpVerificationViewRoutePath,
             pageBuilder: (context, state) {
               final Map<String, dynamic> extras =
-              state.extra as Map<String, dynamic>;
+                  state.extra as Map<String, dynamic>;
               final email = extras['email'] as String;
               final purpose = extras['purpose'] as VerificationPurpose;
 
@@ -92,70 +95,119 @@ class AppRoutingConfig {
           ),
         ],
       ),
-      // we'll use stateful shell route for navigation bar to wrap the main content
-      // and prevent the bottom nav bar from rebuilding each time we navigate to a next page
-      StatefulShellRoute.indexedStack(
-        builder: (context, state, navigationShell) => BaseNavigation(
-          navigationShell: navigationShell,
-        ),
-        branches: [
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                name: RoutingConstants.homeViewRouteName,
-                path: RoutingConstants.homeViewRoutePath,
-                builder: (context, state) => const HomeView(),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                name: RoutingConstants.notificationViewRouteName,
-                path: RoutingConstants.notificationViewRoutePath,
-                builder: (context, state) => const NotificationsView(),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                name: RoutingConstants.qrScannerViewRouteName,
-                path: RoutingConstants.qrScannerViewRoutePath,
-                builder: (context, state) => const QrScannerView(),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                name: RoutingConstants.historyViewRouteName,
-                path: RoutingConstants.historyViewRoutePath,
-                builder: (context, state) => const HomeView(),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                name: RoutingConstants.profileViewRouteName,
-                path: RoutingConstants.profileViewRoutePath,
-                builder: (context, state) => const ProfileView(),
 
-                // add a nested route within a shell route
-                // ensure not to add the '/' at the beginning of path name
-                routes: [
-                  GoRoute(
-                    name: RoutingConstants.settingsViewRouteName,
-                    path: RoutingConstants.settingsViewRoutePath,
-                    builder: (context, state) => const SettingsView(),
-                  ),
-                ],
+      ShellRoute(
+        navigatorKey: _baseNavigationShellKey,
+        pageBuilder: (context, state, child) {
+          return MaterialPage(
+            child: BaseNavigation(
+              child: child,
+            ),
+          );
+        },
+        routes: [
+          GoRoute(
+            name: RoutingConstants.homeViewRouteName,
+            path: RoutingConstants.homeViewRoutePath,
+            builder: (context, state) => const HomeView(),
+          ),
+          GoRoute(
+            name: RoutingConstants.notificationViewRouteName,
+            path: RoutingConstants.notificationViewRoutePath,
+            builder: (context, state) => const NotificationsView(),
+          ),
+          GoRoute(
+            name: RoutingConstants.qrScannerViewRouteName,
+            path: RoutingConstants.qrScannerViewRoutePath,
+            builder: (context, state) => const QrScannerView(),
+          ),
+          GoRoute(
+            name: RoutingConstants.historyViewRouteName,
+            path: RoutingConstants.historyViewRoutePath,
+            builder: (context, state) => const HomeView(),
+          ),
+          GoRoute(
+            name: RoutingConstants.profileViewRouteName,
+            path: RoutingConstants.profileViewRoutePath,
+            builder: (context, state) => const ProfileView(),
+
+            // add a nested route within a shell route
+            // ensure not to add the '/' at the beginning of path name
+            routes: [
+              GoRoute(
+                name: RoutingConstants.settingsViewRouteName,
+                path: RoutingConstants.settingsViewRoutePath,
+                builder: (context, state) => const SettingsView(),
               ),
             ],
           ),
         ],
       ),
+
+      // we'll use stateful shell route for navigation bar to wrap the main content
+      // and prevent the bottom nav bar from rebuilding each time we navigate to a next page
+      // StatefulShellRoute.indexedStack(
+      //   builder: (context, state, navigationShell) => BaseNavigation(
+      //     navigationShell: navigationShell,
+      //   ),
+      //   branches: [
+      //     StatefulShellBranch(
+      //       routes: [
+      //         GoRoute(
+      //           name: RoutingConstants.homeViewRouteName,
+      //           path: RoutingConstants.homeViewRoutePath,
+      //           builder: (context, state) => const HomeView(),
+      //         ),
+      //       ],
+      //     ),
+      //     StatefulShellBranch(
+      //       routes: [
+      //         GoRoute(
+      //           name: RoutingConstants.notificationViewRouteName,
+      //           path: RoutingConstants.notificationViewRoutePath,
+      //           builder: (context, state) => const NotificationsView(),
+      //         ),
+      //       ],
+      //     ),
+      //     StatefulShellBranch(
+      //       routes: [
+      //         GoRoute(
+      //           name: RoutingConstants.qrScannerViewRouteName,
+      //           path: RoutingConstants.qrScannerViewRoutePath,
+      //           builder: (context, state) => const QrScannerView(),
+      //         ),
+      //       ],
+      //     ),
+      //     StatefulShellBranch(
+      //       routes: [
+      //         GoRoute(
+      //           name: RoutingConstants.historyViewRouteName,
+      //           path: RoutingConstants.historyViewRoutePath,
+      //           builder: (context, state) => const HomeView(),
+      //         ),
+      //       ],
+      //     ),
+      //     StatefulShellBranch(
+      //       routes: [
+      //         GoRoute(
+      //           name: RoutingConstants.profileViewRouteName,
+      //           path: RoutingConstants.profileViewRoutePath,
+      //           builder: (context, state) => const ProfileView(),
+      //
+      //           // add a nested route within a shell route
+      //           // ensure not to add the '/' at the beginning of path name
+      //           routes: [
+      //             GoRoute(
+      //               name: RoutingConstants.settingsViewRouteName,
+      //               path: RoutingConstants.settingsViewRoutePath,
+      //               builder: (context, state) => const SettingsView(),
+      //             ),
+      //           ],
+      //         ),
+      //       ],
+      //     ),
+      //   ],
+      // ),
     ],
   );
 }

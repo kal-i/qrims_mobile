@@ -59,7 +59,7 @@ class SummaryCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '69',
+                  '30',
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: foreground,
                     fontSize: SizingConfig.textMultiplier * 3.5,

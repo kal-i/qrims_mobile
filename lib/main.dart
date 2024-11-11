@@ -8,6 +8,7 @@ import 'config/sizing/sizing_config.dart';
 import 'config/themes/bloc/theme_bloc.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/components/custom_auth_password_text_box/bloc/custom_auth_password_text_box_bloc.dart';
+import 'features/notification/presentation/bloc/notifications_bloc.dart';
 import 'injection_container.dart';
 
 Future<void> main() async {
@@ -41,6 +42,9 @@ class MyApp extends StatelessWidget {
             ),
             BlocProvider<CustomAuthPasswordTextBoxBloc>(
               create: (_) => CustomAuthPasswordTextBoxBloc(),
+            ),
+            BlocProvider<NotificationsBloc>(
+              create: (_) => serviceLocator<NotificationsBloc>(),
             ),
           ],
           child: BlocBuilder<ThemeBloc, ThemeData>(
