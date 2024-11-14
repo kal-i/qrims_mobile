@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/enums/verification_purpose.dart';
+import '../../core/features/issuance/presentation/views/view_issuance.dart';
+import '../../core/features/purchase_request/presentation/views/view_purchase_request.dart';
 import '../../features/auth/presentation/views/base_auth_view.dart';
 import '../../features/auth/presentation/views/change_email_view.dart';
 import '../../features/auth/presentation/views/login_view.dart';
@@ -9,6 +11,7 @@ import '../../features/auth/presentation/views/otp_verification_view.dart';
 import '../../features/auth/presentation/views/register_view.dart';
 import '../../features/auth/presentation/views/set_new_password_view.dart';
 import '../../features/auth/presentation/views/unauthorized_view.dart';
+import '../../features/history/presentation/views/history_view.dart';
 import '../../features/notification/presentation/views/notifications_view.dart';
 import '../../features/profile/presentation/views/profile_view.dart';
 import '../../features/qr_scanner/presentation/views/qr_scanner_view.dart';
@@ -24,6 +27,8 @@ class AppRoutingConfig {
       GlobalKey<NavigatorState>(debugLabel: 'auth');
   static final _baseNavigationShellKey =
       GlobalKey<NavigatorState>(debugLabel: 'base nav');
+  static final _prNavigationShellKey =
+      GlobalKey<NavigatorState>(debugLabel: 'pr nav');
 
   static final router = GoRouter(
     debugLogDiagnostics: true,
@@ -43,20 +48,23 @@ class AppRoutingConfig {
           GoRoute(
             name: RoutingConstants.loginViewRouteName,
             path: RoutingConstants.loginViewRoutePath,
-            pageBuilder: (context, state) =>
-                const MaterialPage(child: LoginView()),
+            pageBuilder: (context, state) => const MaterialPage(
+              child: LoginView(),
+            ),
           ),
           GoRoute(
             name: RoutingConstants.registerViewRouteName,
             path: RoutingConstants.registerViewRoutePath,
-            pageBuilder: (context, state) =>
-                const MaterialPage(child: RegisterView()),
+            pageBuilder: (context, state) => const MaterialPage(
+              child: RegisterView(),
+            ),
           ),
           GoRoute(
             name: RoutingConstants.unAuthorizedViewRouteName,
             path: RoutingConstants.unAuthorizedViewRoutePath,
-            pageBuilder: (context, state) =>
-                const MaterialPage(child: UnauthorizedView()),
+            pageBuilder: (context, state) => const MaterialPage(
+              child: UnauthorizedView(),
+            ),
           ),
           GoRoute(
             name: RoutingConstants.changeEmailViewRouteName,
@@ -95,7 +103,6 @@ class AppRoutingConfig {
           ),
         ],
       ),
-
       ShellRoute(
         navigatorKey: _baseNavigationShellKey,
         pageBuilder: (context, state, child) {
@@ -109,27 +116,103 @@ class AppRoutingConfig {
           GoRoute(
             name: RoutingConstants.homeViewRouteName,
             path: RoutingConstants.homeViewRoutePath,
-            builder: (context, state) => const HomeView(),
+            pageBuilder: (context, state) => const MaterialPage(
+              child: HomeView(),
+            ),
+            routes: [
+              GoRoute(
+                name: RoutingConstants.viewPurchaseRequestFromHomeRouteName,
+                path: RoutingConstants.viewPurchaseRequestRoutePath,
+                pageBuilder: (context, state) {
+                  final Map<String, dynamic> extras =
+                      state.extra as Map<String, dynamic>;
+                  final prId = extras['pr_id'] as String;
+                  final initLocation = extras['init_location'] as String;
+
+                  return MaterialPage(
+                    child: ViewPurchaseRequest(
+                      prId: prId,
+                      initLocation: initLocation,
+                    ),
+                  );
+                },
+              ),
+              GoRoute(
+                name: RoutingConstants.viewIssuanceFromHomeRouteName,
+                path: RoutingConstants.viewIssuanceRoutePath,
+                pageBuilder: (context, state) {
+                  final Map<String, dynamic> extras =
+                      state.extra as Map<String, dynamic>;
+                  final issuanceId = extras['issuance_id'] as String;
+                  print('received by route: $issuanceId');
+
+                  return MaterialPage(
+                    child: ViewIssuanceInformation(issuanceId: issuanceId),
+                  );
+                },
+              ),
+            ],
           ),
           GoRoute(
             name: RoutingConstants.notificationViewRouteName,
             path: RoutingConstants.notificationViewRoutePath,
-            builder: (context, state) => const NotificationsView(),
+            pageBuilder: (context, state) => const MaterialPage(
+              child: NotificationsView(),
+            ),
           ),
           GoRoute(
             name: RoutingConstants.qrScannerViewRouteName,
             path: RoutingConstants.qrScannerViewRoutePath,
-            builder: (context, state) => const QrScannerView(),
+            pageBuilder: (context, state) => const MaterialPage(
+              child: QrScannerView(),
+            ),
           ),
           GoRoute(
             name: RoutingConstants.historyViewRouteName,
             path: RoutingConstants.historyViewRoutePath,
-            builder: (context, state) => const HomeView(),
+            pageBuilder: (context, state) => const MaterialPage(
+              child: HistoryView(),
+            ),
+            routes: [
+              GoRoute(
+                name: RoutingConstants.viewPurchaseRequestFromHistoryRouteName,
+                path: RoutingConstants.viewPurchaseRequestRoutePath,
+                pageBuilder: (context, state) {
+                  final Map<String, dynamic> extras =
+                      state.extra as Map<String, dynamic>;
+                  final prId = extras['pr_id'] as String;
+                  final initLocation = extras['init_location'] as String;
+
+                  return MaterialPage(
+                    child: ViewPurchaseRequest(
+                      prId: prId,
+                      initLocation: initLocation,
+                    ),
+                  );
+                },
+              ),
+              GoRoute(
+                name: RoutingConstants.viewIssuanceFromHistoryRouteName,
+                path: RoutingConstants.viewIssuanceRoutePath,
+                pageBuilder: (context, state) {
+                  final Map<String, dynamic> extras =
+                      state.extra as Map<String, dynamic>;
+                  final issuanceId = extras['issuance_id'] as String;
+                  print('received by route: $issuanceId');
+
+                  return MaterialPage(
+                    child: ViewIssuanceInformation(issuanceId: issuanceId),
+                  );
+                },
+              ),
+            ],
           ),
           GoRoute(
             name: RoutingConstants.profileViewRouteName,
             path: RoutingConstants.profileViewRoutePath,
-            builder: (context, state) => const ProfileView(),
+            pageBuilder: (context, state) => const MaterialPage(
+              child: ProfileView(),
+            ),
 
             // add a nested route within a shell route
             // ensure not to add the '/' at the beginning of path name
@@ -137,77 +220,79 @@ class AppRoutingConfig {
               GoRoute(
                 name: RoutingConstants.settingsViewRouteName,
                 path: RoutingConstants.settingsViewRoutePath,
-                builder: (context, state) => const SettingsView(),
+                pageBuilder: (context, state) => const MaterialPage(
+                  child: SettingsView(),
+                ),
               ),
             ],
           ),
         ],
       ),
-
-      // we'll use stateful shell route for navigation bar to wrap the main content
-      // and prevent the bottom nav bar from rebuilding each time we navigate to a next page
-      // StatefulShellRoute.indexedStack(
-      //   builder: (context, state, navigationShell) => BaseNavigation(
-      //     navigationShell: navigationShell,
-      //   ),
-      //   branches: [
-      //     StatefulShellBranch(
-      //       routes: [
-      //         GoRoute(
-      //           name: RoutingConstants.homeViewRouteName,
-      //           path: RoutingConstants.homeViewRoutePath,
-      //           builder: (context, state) => const HomeView(),
-      //         ),
-      //       ],
-      //     ),
-      //     StatefulShellBranch(
-      //       routes: [
-      //         GoRoute(
-      //           name: RoutingConstants.notificationViewRouteName,
-      //           path: RoutingConstants.notificationViewRoutePath,
-      //           builder: (context, state) => const NotificationsView(),
-      //         ),
-      //       ],
-      //     ),
-      //     StatefulShellBranch(
-      //       routes: [
-      //         GoRoute(
-      //           name: RoutingConstants.qrScannerViewRouteName,
-      //           path: RoutingConstants.qrScannerViewRoutePath,
-      //           builder: (context, state) => const QrScannerView(),
-      //         ),
-      //       ],
-      //     ),
-      //     StatefulShellBranch(
-      //       routes: [
-      //         GoRoute(
-      //           name: RoutingConstants.historyViewRouteName,
-      //           path: RoutingConstants.historyViewRoutePath,
-      //           builder: (context, state) => const HomeView(),
-      //         ),
-      //       ],
-      //     ),
-      //     StatefulShellBranch(
-      //       routes: [
-      //         GoRoute(
-      //           name: RoutingConstants.profileViewRouteName,
-      //           path: RoutingConstants.profileViewRoutePath,
-      //           builder: (context, state) => const ProfileView(),
-      //
-      //           // add a nested route within a shell route
-      //           // ensure not to add the '/' at the beginning of path name
-      //           routes: [
-      //             GoRoute(
-      //               name: RoutingConstants.settingsViewRouteName,
-      //               path: RoutingConstants.settingsViewRoutePath,
-      //               builder: (context, state) => const SettingsView(),
-      //             ),
-      //           ],
-      //         ),
-      //       ],
-      //     ),
-      //   ],
-      // ),
     ],
   );
 }
+
+// we'll use stateful shell route for navigation bar to wrap the main content
+// and prevent the bottom nav bar from rebuilding each time we navigate to a next page
+// StatefulShellRoute.indexedStack(
+//   builder: (context, state, navigationShell) => BaseNavigation(
+//     navigationShell: navigationShell,
+//   ),
+//   branches: [
+//     StatefulShellBranch(
+//       routes: [
+//         GoRoute(
+//           name: RoutingConstants.homeViewRouteName,
+//           path: RoutingConstants.homeViewRoutePath,
+//           builder: (context, state) => const HomeView(),
+//         ),
+//       ],
+//     ),
+//     StatefulShellBranch(
+//       routes: [
+//         GoRoute(
+//           name: RoutingConstants.notificationViewRouteName,
+//           path: RoutingConstants.notificationViewRoutePath,
+//           builder: (context, state) => const NotificationsView(),
+//         ),
+//       ],
+//     ),
+//     StatefulShellBranch(
+//       routes: [
+//         GoRoute(
+//           name: RoutingConstants.qrScannerViewRouteName,
+//           path: RoutingConstants.qrScannerViewRoutePath,
+//           builder: (context, state) => const QrScannerView(),
+//         ),
+//       ],
+//     ),
+//     StatefulShellBranch(
+//       routes: [
+//         GoRoute(
+//           name: RoutingConstants.historyViewRouteName,
+//           path: RoutingConstants.historyViewRoutePath,
+//           builder: (context, state) => const HomeView(),
+//         ),
+//       ],
+//     ),
+//     StatefulShellBranch(
+//       routes: [
+//         GoRoute(
+//           name: RoutingConstants.profileViewRouteName,
+//           path: RoutingConstants.profileViewRoutePath,
+//           builder: (context, state) => const ProfileView(),
+//
+//           // add a nested route within a shell route
+//           // ensure not to add the '/' at the beginning of path name
+//           routes: [
+//             GoRoute(
+//               name: RoutingConstants.settingsViewRouteName,
+//               path: RoutingConstants.settingsViewRoutePath,
+//               builder: (context, state) => const SettingsView(),
+//             ),
+//           ],
+//         ),
+//       ],
+//     ),
+//   ],
+// ),

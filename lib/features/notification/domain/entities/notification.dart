@@ -1,10 +1,11 @@
+import '../../../../core/entities/user/user.dart';
 import '../../../../core/enums/notification_type.dart';
 
 class NotificationEntity {
   const NotificationEntity({
     required this.id,
     required this.recipientId,
-    required this.senderId,
+    required this.sender,
     required this.message,
     this.type,
     this.referenceId,
@@ -14,7 +15,7 @@ class NotificationEntity {
 
   final String id;
   final String recipientId;
-  final String senderId;
+  final UserEntity sender;
   final String message;
   final NotificationType? type;
   final String? referenceId;

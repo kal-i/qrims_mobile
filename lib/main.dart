@@ -6,8 +6,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'config/routes/app_router.dart';
 import 'config/sizing/sizing_config.dart';
 import 'config/themes/bloc/theme_bloc.dart';
+import 'core/features/issuance/presentation/bloc/issuances_bloc.dart';
+import 'core/features/purchase_request/presentation/bloc/bloc/purchase_requests_bloc.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/components/custom_auth_password_text_box/bloc/custom_auth_password_text_box_bloc.dart';
+
 import 'features/notification/presentation/bloc/notifications_bloc.dart';
 import 'injection_container.dart';
 
@@ -42,6 +45,12 @@ class MyApp extends StatelessWidget {
             ),
             BlocProvider<CustomAuthPasswordTextBoxBloc>(
               create: (_) => CustomAuthPasswordTextBoxBloc(),
+            ),
+            BlocProvider<PurchaseRequestsBloc>(
+              create: (_) => serviceLocator<PurchaseRequestsBloc>(),
+            ),
+            BlocProvider<IssuancesBloc>(
+              create: (_) => serviceLocator<IssuancesBloc>(),
             ),
             BlocProvider<NotificationsBloc>(
               create: (_) => serviceLocator<NotificationsBloc>(),

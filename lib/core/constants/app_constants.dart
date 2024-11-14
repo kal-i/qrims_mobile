@@ -43,4 +43,7 @@ const purchaseRequestsEP = '/purchase_requests';
 const purchaseRequestIdEP = '$purchaseRequestsEP/id';
 const requestingOfficerPurchaseRequestsEP = '$purchaseRequestsEP/receiving_officer';
 
+const issuancesEP = '/issuances';
+const issuancesIdEP = '$issuancesEP/id';
+
 const notificationsEP = '/notifications';

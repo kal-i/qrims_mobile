@@ -26,6 +26,8 @@ class CustomTextBox extends StatelessWidget {
     this.inputFormatters,
     this.validator,
     this.prefixIcon,
+    this.fillColor,
+    this.circularBorderRadius = 10,
   });
 
   final double width;
@@ -43,6 +45,8 @@ class CustomTextBox extends StatelessWidget {
   final TextInputType? textInputType;
   final List<TextInputFormatter>? inputFormatters;
   final String? Function(String?)? validator;
+  final Color? fillColor;
+  final double circularBorderRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -58,33 +62,33 @@ class CustomTextBox extends StatelessWidget {
         decoration: InputDecoration(
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide.none,
-            borderRadius: BorderRadius.circular(10.0),
+            borderRadius: BorderRadius.circular(circularBorderRadius),
           ),
           errorBorder: OutlineInputBorder(
             borderSide: const BorderSide(
               color: AppColor.error,
               width: 2.0,
             ),
-            borderRadius: BorderRadius.circular(10.0),
+            borderRadius: BorderRadius.circular(circularBorderRadius),
           ),
           focusedBorder: OutlineInputBorder(
             borderSide: const BorderSide(
               color: AppColor.accent,
               width: 2.0,
             ),
-            borderRadius: BorderRadius.circular(10.0),
+            borderRadius: BorderRadius.circular(circularBorderRadius),
           ),
           focusedErrorBorder: OutlineInputBorder(
             borderSide: const BorderSide(
               color: AppColor.error,
               width: 2.0,
             ),
-            borderRadius: BorderRadius.circular(10.0),
+            borderRadius: BorderRadius.circular(circularBorderRadius),
           ),
           filled: true,
-          fillColor: currentTheme == AppTheme.light
+          fillColor: fillColor ?? (currentTheme == AppTheme.light
               ? AppColor.lightBackground
-              : AppColor.darkBackground,
+              : AppColor.darkBackground),
           hintText: placeHolderText,
           hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: AppColor.darkPlaceHolderText,

@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../config/routes/app_routing_constants.dart';
 import '../../../../config/sizing/sizing_config.dart';
 import '../../../../config/themes/app_color.dart';
+import '../../../../core/common/components/custom_circular_loader.dart';
+import '../../../../core/common/components/custom_message_box.dart';
+import '../../../../core/common/components/pagination_controls.dart';
+import '../../../../core/common/components/highlight_status_container.dart';
 import '../../../../core/constants/assets_path.dart';
+import '../../../../core/enums/purchase_request_status.dart';
+import '../../../../core/features/purchase_request/presentation/bloc/bloc/purchase_requests_bloc.dart';
+import '../../../../core/features/purchase_request/presentation/components/purchase_request_card.dart';
+import '../../../../core/models/purchase_request/purchase_request.dart';
 import '../../../../core/models/user/mobile_user.dart';
 import '../../../../core/utils/capitalizer.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
@@ -21,137 +28,219 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
+  late PurchaseRequestsBloc _purchaseRequestsBloc;
+
+  final List<PurchaseRequestModel> _purchaseRequests = [];
+  final ValueNotifier<int> _pendingPurchaseRequestsCount = ValueNotifier(0);
+  final ValueNotifier<int> _incompletePurchaseRequestsCount = ValueNotifier(0);
+  final ValueNotifier<int> _completePurchaseRequestsCount = ValueNotifier(0);
+  final ValueNotifier<int> _cancelledPurchaseRequestsCount = ValueNotifier(0);
+
+  int _currentPage = 1;
+  int _pageSize = 2;
+  int _totalRecords = 0;
+  String _filter = 'ongoing';
+
+  @override
+  void initState() {
+    super.initState();
+    _purchaseRequestsBloc = context.read<PurchaseRequestsBloc>();
+    _fetchPurchaseRequests();
+  }
+
+  void _fetchPurchaseRequests() {
+    _purchaseRequestsBloc.add(
+      GetPurchaseRequestsEvent(
+        page: _currentPage,
+        pageSize: _pageSize,
+        filter: _filter,
+        // status: _selectedPrStatus(
+        //   selectedPrStatus: _selectedFilterNotifier.value,
+        // ),
+      ),
+    );
+  }
+
+  void _refreshPurchaseRequestList() {
+    //_searchController.clear();
+    _currentPage = 1;
+    //_selectedFilterNotifier.value = 'pending';
+    _fetchPurchaseRequests();
+  }
+
+  PurchaseRequestStatus _selectedPrStatus({
+    required String selectedPrStatus,
+  }) {
+    switch (selectedPrStatus) {
+      case 'pending':
+        return PurchaseRequestStatus.pending;
+      case 'incomplete':
+        return PurchaseRequestStatus.partiallyFulfilled;
+      case 'fulfilled':
+        return PurchaseRequestStatus.fulfilled;
+      case 'cancelled':
+        return PurchaseRequestStatus.cancelled;
+      default:
+        return PurchaseRequestStatus.pending;
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _pendingPurchaseRequestsCount.dispose();
+    _incompletePurchaseRequestsCount.dispose();
+    _completePurchaseRequestsCount.dispose();
+    _cancelledPurchaseRequestsCount.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: SafeArea(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: SizingConfig.widthMultiplier * 5.0,
-                    vertical: SizingConfig.heightMultiplier * 3.0,
-                  ),
-                  child: Column(
-                    children: [
-                      _buildHeaderRow(),
-                      SizedBox(
-                        height: SizingConfig.heightMultiplier * 3.0,
-                      ),
-                      SizedBox(
-                        height: SizingConfig.heightMultiplier * 23.0,
-                        child: _buildSummaryReportsContainer(),
-                      ),
-                      SizedBox(
-                        height: SizingConfig.heightMultiplier * 3.0,
-                      ),
-                      _buildListView(),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: SizingConfig.widthMultiplier * 5.0,
+            vertical: SizingConfig.heightMultiplier * 3.0,
           ),
-        ],
+          child: Column(
+            children: [
+              _buildHeaderRow(),
+              SizedBox(
+                height: SizingConfig.heightMultiplier * 3.0,
+              ),
+              SizedBox(
+                height: SizingConfig.heightMultiplier * 23.0,
+                child: _buildSummaryReportsContainer(),
+              ),
+              SizedBox(
+                height: SizingConfig.heightMultiplier * 3.0,
+              ),
+              Expanded(
+                child: _buildPurchaseRequestsViewSection(),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 
   Widget _buildHeaderRow() {
-    return BlocBuilder<AuthBloc, AuthState>(builder: (context, state) {
-      late MobileUserModel user;
-      if (state is AuthSuccess) {
-        user = state.data;
-      }
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        late MobileUserModel user;
+        if (state is AuthSuccess) {
+          user = state.data;
+        }
 
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Welcome back,',
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
-              Text(
-                capitalizeWord(user.name.toString().split(' ').last),
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ],
-          ),
-          _buildProfileContainer(),
-        ],
-      );
-    });
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Welcome back,',
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                Text(
+                  capitalizeWord(user.name.toString().split(' ').last),
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ],
+            ),
+            _buildProfileContainer(),
+          ],
+        );
+      },
+    );
   }
 
   Widget _buildSummaryReportsContainer() {
-    return const Row(
+    return Row(
       children: [
         Expanded(
           child: Column(
             children: [
               Expanded(
-                child: SummaryCard(
-                  label: 'Fulfilled',
-                  icon: HugeIcons.strokeRoundedPackageDelivered,
-                  background: AppColor.lightGreen,
-                  outlineColor: AppColor.lightGreenOutline,
-                  foreground: AppColor.lightGreenText,
-                ),
+                child: ValueListenableBuilder(
+                    valueListenable: _completePurchaseRequestsCount,
+                    builder: (context, completeCount, child) {
+                      return SummaryCard(
+                        label: 'Fulfilled',
+                        value: completeCount.toString(),
+                        icon: HugeIcons.strokeRoundedPackageDelivered,
+                        background: AppColor.lightGreen,
+                        outlineColor: AppColor.lightGreenOutline,
+                        foreground: AppColor.lightGreenText,
+                      );
+                    }),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10.0,
               ),
               Expanded(
-                child: SummaryCard(
-                  label: 'Semi-Fulfilled',
-                  icon: HugeIcons.strokeRoundedPackageRemove,
-                  background: AppColor.lightBlue,
-                  outlineColor: AppColor.lightBlueOutline,
-                  foreground: AppColor.lightBlueText,
-                ),
+                child: ValueListenableBuilder(
+                    valueListenable: _incompletePurchaseRequestsCount,
+                    builder: (context, incompleteCount, child) {
+                      return SummaryCard(
+                        label: 'Semi-Fulfilled',
+                        value: incompleteCount.toString(),
+                        icon: HugeIcons.strokeRoundedPackageRemove,
+                        background: AppColor.lightBlue,
+                        outlineColor: AppColor.lightBlueOutline,
+                        foreground: AppColor.lightBlueText,
+                      );
+                    }),
               ),
             ],
           ),
         ),
-        SizedBox(
+        const SizedBox(
           width: 10.0,
         ),
         Expanded(
           child: Column(
             children: [
               Expanded(
-                child: SummaryCard(
-                  label: 'Pending',
-                  icon: HugeIcons.strokeRoundedPackageProcess,
-                  background: AppColor.lightYellow,
-                  outlineColor: AppColor.lightYellowOutline,
-                  foreground: AppColor.lightYellowText,
-                ),
+                child: ValueListenableBuilder(
+                    valueListenable: _pendingPurchaseRequestsCount,
+                    builder: (context, pendingCount, child) {
+                      return SummaryCard(
+                        label: 'Pending',
+                        value: pendingCount.toString(),
+                        icon: HugeIcons.strokeRoundedPackageProcess,
+                        background: AppColor.lightYellow,
+                        outlineColor: AppColor.lightYellowOutline,
+                        foreground: AppColor.lightYellowText,
+                      );
+                    }),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10.0,
               ),
               Expanded(
-                  child: SummaryCard(
-                label: 'Cancelled',
-                icon: HugeIcons.strokeRoundedPackageRemove,
-                background: AppColor.lightRed,
-                outlineColor: AppColor.lightRedOutline,
-                foreground: AppColor.lightRedText,
-              )),
+                child: ValueListenableBuilder(
+                    valueListenable: _cancelledPurchaseRequestsCount,
+                    builder: (context, cancelledCount, child) {
+                      return SummaryCard(
+                        label: 'Cancelled',
+                        value: cancelledCount.toString(),
+                        icon: HugeIcons.strokeRoundedPackageRemove,
+                        background: AppColor.lightRed,
+                        outlineColor: AppColor.lightRedOutline,
+                        foreground: AppColor.lightRedText,
+                      );
+                    }),
+              ),
             ],
           ),
         ),
       ],
     );
   }
-
-  // todo: prolly move the cancelled and fulfilled to history
 
   Widget _buildProfileContainer() {
     return Container(
@@ -169,209 +258,133 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  // convert to enum later
-  final List<String> _prStatusLists = [
-    'Pending',
-    'Semi-Fulfilled',
-    'Fulfilled',
-    'Cancelled',
-  ];
-
-  Widget _buildPendingRequestsView() {
+  Widget _buildPurchaseRequestsViewSectionHeader() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      //crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Purchase Requests',
+              'Ongoing Requests',
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w500,
                   ),
             ),
-            TextButton(
-              onPressed: () {},
-              child: Text(
-                'See all',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColor.lightSubTitleText,
-                    ),
-              ),
+            PaginationControls(
+              currentPage: _currentPage,
+              totalRecords: _totalRecords,
+              pageSize: _pageSize,
+              onPageChanged: (page) {
+                _currentPage = page;
+                _fetchPurchaseRequests();
+              },
+              onPageSizeChanged: (size) {
+                _pageSize = size;
+                _fetchPurchaseRequests();
+              },
             ),
           ],
-        ),
-        //const SizedBox(
-        //height: 5.0,
-        //),
-        // todo: menu here
-        //const SizedBox(
-        //height: 5.0,
-        //),
-        Expanded(
-          child: ListView.builder(
-            //shrinkWrap: true, // Important for proper scrolling behavior
-            //physics: const NeverScrollableScrollPhysics(), // Disable scrolling here
-            itemCount: 10,
-            itemBuilder: (context, index) {
-              return Slidable(
-                endActionPane: ActionPane(
-                  motion: const ScrollMotion(),
-                  children: [
-                    SlidableAction(
-                      onPressed: (_) {},
-                      borderRadius: BorderRadius.circular(10.0),
-                      backgroundColor: AppColor.lightYellow,
-                      foregroundColor: AppColor.lightYellowText,
-                      icon: HugeIcons.strokeRoundedView,
-                      label: 'View',
-                    ),
-                    // send some kind of distress signal in a form of notif I guess
-                    SlidableAction(
-                      borderRadius: BorderRadius.circular(10.0),
-                      onPressed: (_) {},
-                      backgroundColor: AppColor.lightGreen,
-                      foregroundColor: AppColor.lightGreenText,
-                      icon: HugeIcons.strokeRoundedSent,
-                      label: 'Notify',
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    bottom: 5.0,
-                  ),
-                  child: ListTile(
-                    isThreeLine: true,
-                    // contentPadding: const EdgeInsets.symmetric(
-                    //   horizontal: 10.0,
-                    //   vertical: 5.0,
-                    // ),
-                    tileColor: Theme.of(context).primaryColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    // leading: Text(
-                    //   '2024/10/12',
-                    //   style: Theme.of(context).textTheme.bodySmall,
-                    // ),
-                    subtitle: RichText(
-                      text: TextSpan(
-                        text: 'Date:      ',
-                        style: Theme.of(context).textTheme.bodySmall,
-                        children: [
-                          TextSpan(
-                            text: '12/02/2024',
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        ],
-                      ),
-                    ),
-                    title: RichText(
-                      text: TextSpan(
-                        text: 'PR No.:  ',
-                        style: Theme.of(context).textTheme.bodySmall,
-                        children: [
-                          TextSpan(
-                            text: 'PR-2024-10-012',
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        ],
-                      ),
-                    ),
-                    trailing: Text(
-                      'Pending',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
         ),
       ],
     );
   }
 
-  Widget _buildListView() {
-    return ListView.builder(
-      shrinkWrap: true, // Important for proper scrolling behavior
-      //physics: const NeverScrollableScrollPhysics(),  // Disable scrolling here
-      itemCount: 10,
-      itemBuilder: (context, index) {
-        return Slidable(
-          endActionPane: ActionPane(
-            motion: const ScrollMotion(),
+  Widget _buildPurchaseRequestsViewSection() {
+    return BlocListener<PurchaseRequestsBloc, PurchaseRequestsState>(
+      listener: (context, state) {
+        if (state is PurchaseRequestsLoaded) {
+          _totalRecords = state.totalPurchaseRequestsCount;
+          _pendingPurchaseRequestsCount.value =
+              state.totalPendingPurchaseRequestsCount;
+          _incompletePurchaseRequestsCount.value =
+              state.totalIncompletePurchaseRequestsCount;
+          _completePurchaseRequestsCount.value =
+              state.totalCompletePurchaseRequestsCount;
+          _cancelledPurchaseRequestsCount.value =
+              state.totalCancelledPurchaseRequestsCount;
+          _purchaseRequests.clear();
+          _purchaseRequests.addAll(
+            state.purchaseRequests
+                .map((pr) => pr as PurchaseRequestModel)
+                .toList(),
+          );
+        }
+      },
+      child: BlocBuilder<PurchaseRequestsBloc, PurchaseRequestsState>(
+        builder: (context, state) {
+          return Column(
             children: [
-              SlidableAction(
-                onPressed: (_) {},
-                borderRadius: BorderRadius.circular(10.0),
-                backgroundColor: AppColor.lightYellow,
-                foregroundColor: AppColor.lightYellowText,
-                icon: HugeIcons.strokeRoundedView,
-                label: 'View',
+              _buildPurchaseRequestsViewSectionHeader(),
+              SizedBox(
+                height: SizingConfig.heightMultiplier * 2.5,
               ),
-              // send some kind of distress signal in a form of notif I guess
-              SlidableAction(
-                borderRadius: BorderRadius.circular(10.0),
-                onPressed: (_) {},
-                backgroundColor: AppColor.lightGreen,
-                foregroundColor: AppColor.lightGreenText,
-                icon: HugeIcons.strokeRoundedSent,
-                label: 'Notify',
+              if (state is PurchaseRequestsLoading)
+                const CustomCircularLoader(),
+              if (state is PurchaseRequestsError)
+                CustomMessageBox.error(
+                  message: state.message,
+                ),
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: () async => _refreshPurchaseRequestList(),
+                  color: AppColor.accent,
+                  child: ListView.builder(
+                    itemCount: _purchaseRequests.length,
+                    itemBuilder: (context, index) {
+                      final pr = _purchaseRequests[index];
+
+                      return PurchaseRequestCard(
+                        onView: (_) {
+                          final Map<String, dynamic> extra = {
+                            'pr_id': pr.id,
+                            'init_location': RoutingConstants.nestedHomePurchaseRequestViewRoutePath,
+                          };
+
+                          context.go(
+                            RoutingConstants
+                                .nestedHomePurchaseRequestViewRoutePath,
+                            extra: extra,
+                          );
+                        },
+                        onNotify: (_) {},
+                        prId: pr.id,
+                        itemName: pr.productNameEntity.name,
+                        purpose: pr.purpose,
+                        date: pr.date,
+                        highlightStatusContainer: _buildStatusHighlighter(
+                          pr.purchaseRequestStatus,
+                        ),
+                      );
+                    },
+                  ),
+                ),
               ),
             ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.only(
-              bottom: 5.0,
-            ),
-            child: ListTile(
-              isThreeLine: true,
-              // contentPadding: const EdgeInsets.symmetric(
-              //   horizontal: 10.0,
-              //   vertical: 5.0,
-              // ),
-              tileColor: Theme.of(context).primaryColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              // leading: Text(
-              //   '2024/10/12',
-              //   style: Theme.of(context).textTheme.bodySmall,
-              // ),
-              subtitle: RichText(
-                text: TextSpan(
-                  text: 'Date:      ',
-                  style: Theme.of(context).textTheme.bodySmall,
-                  children: [
-                    TextSpan(
-                      text: '12/02/2024',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-              ),
-              title: RichText(
-                text: TextSpan(
-                  text: 'PR No.:  ',
-                  style: Theme.of(context).textTheme.bodySmall,
-                  children: [
-                    TextSpan(
-                      text: 'PR-2024-10-012',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-              ),
-              trailing: Text(
-                'Pending',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
+  }
+
+  Widget _buildStatusHighlighter(PurchaseRequestStatus prStatus) {
+    return HighlightStatusContainer(
+      statusStyle: _prStatusStyler(prStatus: prStatus),
+    );
+  }
+
+  StatusStyle _prStatusStyler({required PurchaseRequestStatus prStatus}) {
+    switch (prStatus) {
+      case PurchaseRequestStatus.pending:
+        return StatusStyle.yellow(label: 'Pending');
+      case PurchaseRequestStatus.partiallyFulfilled:
+        return StatusStyle.blue(label: 'Incomplete');
+      case PurchaseRequestStatus.fulfilled:
+        return StatusStyle.green(label: 'Complete');
+      case PurchaseRequestStatus.cancelled:
+        return StatusStyle.red(label: 'Cancelled');
+      default:
+        throw Exception('Invalid Purchase Request Status');
+    }
   }
 }

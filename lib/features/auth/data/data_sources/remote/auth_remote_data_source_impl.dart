@@ -362,7 +362,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         final token = responseData['token'];
         // set bearer token
         httpService.updateBearerToken(token);
-        print(token);
+        print('bearer token: $token');
         print(responseData['user']);
         final userModel = UserModel.fromJson(responseData['user']);
         print(userModel);

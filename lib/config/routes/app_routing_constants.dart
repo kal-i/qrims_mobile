@@ -20,12 +20,25 @@ class RoutingConstants {
   static const homeViewRouteName = 'homeView';
   static const homeViewRoutePath = '/home';
 
+  static const viewPurchaseRequestRouteName = 'viewPurchaseRequest';
+  static const viewPurchaseRequestRoutePath = 'viewPurchaseRequest';
+  static const nestedHomePurchaseRequestViewRoutePath = '$homeViewRoutePath/$viewPurchaseRequestRoutePath';
+  static const nestedHistoryPurchaseRequestViewRoutePath = '$historyViewRoutePath/$viewPurchaseRequestRoutePath';
+  static const viewPurchaseRequestFromHomeRouteName = 'viewPurchaseRequestFromHome';
+  static const viewPurchaseRequestFromHistoryRouteName = 'viewPurchaseRequestFromHistory';
+
+  static const viewIssuanceRouteName = 'viewIssuance';
+  static const viewIssuanceRoutePath = 'viewIssuance';
+  static const nestedHomeIssuanceViewRoutePath = '$homeViewRoutePath/$viewIssuanceRoutePath';
+  static const nestedHistoryIssuanceViewRoutePath = '$historyViewRoutePath/$viewIssuanceRoutePath';
+  static const viewIssuanceFromHomeRouteName = 'viewIssuanceFromHome';
+  static const viewIssuanceFromHistoryRouteName = 'viewIssuanceFromHistory';
+
   static const notificationViewRouteName = 'notificationView';
   static const notificationViewRoutePath = '/notification';
 
   static const qrScannerViewRouteName = 'qrScannerView';
   static const qrScannerViewRoutePath = '/qrScanner';
-  //static const nestedQrScannerViewRoutePath = '$homeViewRoutePath/$qrScannerViewRoutePath';
 
   static const historyViewRouteName = 'historyView';
   static const historyViewRoutePath = '/history';

@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 
 import '../../../../config/sizing/sizing_config.dart';
+import '../../../../config/themes/app_color.dart';
 
 class SummaryCard extends StatelessWidget {
   const SummaryCard({
     super.key,
     required this.label,
     required this.icon,
+    required this.value,
     required this.background,
     required this.outlineColor,
     required this.foreground,
   });
 
   final String label;
+  final String value;
   final IconData icon;
   final Color background;
   final Color outlineColor;
@@ -23,6 +26,10 @@ class SummaryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(10.0),
       decoration: BoxDecoration(
+        border: Border.all(
+          color: Theme.of(context).dividerColor,
+          width: .4,
+        ),
         borderRadius: BorderRadius.circular(10.0),
         color: Theme.of(context).primaryColor,
       ),
@@ -59,7 +66,7 @@ class SummaryCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '30',
+                  value,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: foreground,
                     fontSize: SizingConfig.textMultiplier * 3.5,
