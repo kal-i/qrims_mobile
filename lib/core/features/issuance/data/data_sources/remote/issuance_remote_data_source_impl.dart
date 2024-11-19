@@ -36,4 +36,59 @@ class IssuanceRemoteDataSourceImpl implements IssuanceRemoteDataSource {
       throw ServerException(e.toString());
     }
   }
+
+  @override
+  Future<IssuanceModel?> receiveIssuance({
+    required String id,
+  }) async {
+    try {
+      final response = await httpService.patch(
+        endpoint: '$issuancesIdEP/$id',
+      );
+
+      // Handle successful follow-up
+      if (response.statusCode == 200) {
+        return IssuanceModel.fromJson(response.data['issuance']);
+      }
+
+      // Handle specific status codes with informative messages
+      if (response.statusCode == 401) {
+        final errorData = response.data as Map<String, dynamic>;
+        throw ServerException(errorData['error'] ?? 'Unauthorized action.');
+      }
+
+      if (response.statusCode == 403) {
+        final errorData = response.data as Map<String, dynamic>;
+        throw ServerException(errorData['error'] ?? 'Action forbidden.');
+      }
+
+      if (response.statusCode == 404) {
+        final errorData = response.data as Map<String, dynamic>;
+        throw ServerException(errorData['error'] ?? 'Not found.');
+      }
+
+      if (response.statusCode == 500) {
+        final errorData = response.data as Map<String, dynamic>;
+        throw ServerException(errorData['error'] ?? 'Server error occurred.');
+      }
+
+      // Fallback for other unhandled status codes
+      throw ServerException(
+        'Unexpected error: ${response.statusCode} - ${response.statusMessage}',
+      );
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final errorData = e.response?.data as Map<String, dynamic>?;
+        final errorMessage = errorData?['error'] ?? e.response?.statusMessage;
+
+        throw ServerException(
+          errorMessage ?? 'An unexpected error occurred.',
+        );
+      } else {
+        throw ServerException('Connection error: ${e.message}');
+      }
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
 }

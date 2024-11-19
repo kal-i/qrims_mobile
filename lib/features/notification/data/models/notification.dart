@@ -21,9 +21,38 @@ class NotificationModel extends NotificationEntity {
     UserModel sender;
 
     if (senderMap.containsKey('supp_dept_emp_id')) {
+      //print('supp dept sender: $senderMap');
       sender = SupplyDepartmentEmployeeModel.fromJson(senderMap);
     } else {
-      sender = MobileUserModel.fromJson(senderMap);
+      print(senderMap);
+      print('mobile sender: ${senderMap['officer']}');
+      final mobileUserMap = {
+        'user_id': senderMap['user_id'],
+        'name': senderMap['name'],
+        'email': senderMap['email'],
+        'password': senderMap['password'],
+        'created_at': senderMap['created_at'],
+        'updated_at': senderMap['updated_at'],
+        'auth_status': senderMap['auth_status'],
+        'is_archived': senderMap['is_archived'],
+        'otp': senderMap['otp'],
+        'otp_expiry': senderMap['otp_expiry'],
+        'profile_image': senderMap['profile_image'],
+        'mobile_user_id': senderMap['mobile_user_id'],
+        'officer': {
+          'id': senderMap['officer']['id'],
+          'user_id': senderMap['officer']['user_id'],
+          'name': senderMap['officer']['name'],
+          'position_id': senderMap['officer']['position_id'],
+          'office_name': senderMap['officer']['office_name'],
+          'position_name': senderMap['officer']['position_name'],
+          'is_archived': senderMap['officer']['is_archived'],
+        },
+        'admin_approval_status': senderMap['admin_approval_status'],
+      };
+
+      sender = MobileUserModel.fromJson(mobileUserMap);
+      print('after mobile conversion: ------- $sender');
     }
 
     print('received json: $json');

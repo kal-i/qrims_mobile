@@ -11,6 +11,7 @@ import 'core/features/purchase_request/presentation/bloc/bloc/purchase_requests_
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/components/custom_auth_password_text_box/bloc/custom_auth_password_text_box_bloc.dart';
 
+import 'features/item/presentation/bloc/item_bloc.dart';
 import 'features/notification/presentation/bloc/notifications_bloc.dart';
 import 'injection_container.dart';
 
@@ -51,6 +52,9 @@ class MyApp extends StatelessWidget {
             ),
             BlocProvider<IssuancesBloc>(
               create: (_) => serviceLocator<IssuancesBloc>(),
+            ),
+            BlocProvider<ItemBloc>(
+              create: (_) => serviceLocator<ItemBloc>(),
             ),
             BlocProvider<NotificationsBloc>(
               create: (_) => serviceLocator<NotificationsBloc>(),

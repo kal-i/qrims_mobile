@@ -12,6 +12,7 @@ import '../../features/auth/presentation/views/register_view.dart';
 import '../../features/auth/presentation/views/set_new_password_view.dart';
 import '../../features/auth/presentation/views/unauthorized_view.dart';
 import '../../features/history/presentation/views/history_view.dart';
+import '../../features/item/presentation/views/item_view.dart';
 import '../../features/notification/presentation/views/notifications_view.dart';
 import '../../features/profile/presentation/views/profile_view.dart';
 import '../../features/qr_scanner/presentation/views/qr_scanner_view.dart';
@@ -159,6 +160,40 @@ class AppRoutingConfig {
             pageBuilder: (context, state) => const MaterialPage(
               child: NotificationsView(),
             ),
+            routes: [
+              GoRoute(
+                name: RoutingConstants
+                    .viewPurchaseRequestFromNotificationRouteName,
+                path: RoutingConstants.viewPurchaseRequestRoutePath,
+                pageBuilder: (context, state) {
+                  final Map<String, dynamic> extras =
+                      state.extra as Map<String, dynamic>;
+                  final prId = extras['pr_id'] as String;
+                  final initLocation = extras['init_location'] as String;
+
+                  return MaterialPage(
+                    child: ViewPurchaseRequest(
+                      prId: prId,
+                      initLocation: initLocation,
+                    ),
+                  );
+                },
+              ),
+              GoRoute(
+                name: RoutingConstants.viewIssuanceFromNotificationRouteName,
+                path: RoutingConstants.viewIssuanceRoutePath,
+                pageBuilder: (context, state) {
+                  final Map<String, dynamic> extras =
+                      state.extra as Map<String, dynamic>;
+                  final issuanceId = extras['issuance_id'] as String;
+                  print('received by route: $issuanceId');
+
+                  return MaterialPage(
+                    child: ViewIssuanceInformation(issuanceId: issuanceId),
+                  );
+                },
+              ),
+            ],
           ),
           GoRoute(
             name: RoutingConstants.qrScannerViewRouteName,
@@ -166,6 +201,55 @@ class AppRoutingConfig {
             pageBuilder: (context, state) => const MaterialPage(
               child: QrScannerView(),
             ),
+            routes: [
+              GoRoute(
+                name:
+                    RoutingConstants.viewPurchaseRequestFromQRScannerRouteName,
+                path: RoutingConstants.viewPurchaseRequestRoutePath,
+                pageBuilder: (context, state) {
+                  final Map<String, dynamic> extras =
+                      state.extra as Map<String, dynamic>;
+                  final prId = extras['pr_id'] as String;
+                  final initLocation = extras['init_location'] as String;
+
+                  return MaterialPage(
+                    child: ViewPurchaseRequest(
+                      prId: prId,
+                      initLocation: initLocation,
+                    ),
+                  );
+                },
+              ),
+              GoRoute(
+                name: RoutingConstants.viewItemRouteName,
+                path: RoutingConstants.viewItemRoutePath,
+                pageBuilder: (context, state) {
+                  final Map<String, dynamic> extras =
+                      state.extra as Map<String, dynamic>;
+                  final itemId = extras['item_id'] as String;
+
+                  return MaterialPage(
+                    child: ItemView(
+                      itemId: itemId,
+                    ),
+                  );
+                },
+              ),
+              GoRoute(
+                name: RoutingConstants.viewIssuanceFromQRScannerRouteName,
+                path: RoutingConstants.viewIssuanceRoutePath,
+                pageBuilder: (context, state) {
+                  final Map<String, dynamic> extras =
+                      state.extra as Map<String, dynamic>;
+                  final issuanceId = extras['issuance_id'] as String;
+                  print('received by route: $issuanceId');
+
+                  return MaterialPage(
+                    child: ViewIssuanceInformation(issuanceId: issuanceId),
+                  );
+                },
+              ),
+            ],
           ),
           GoRoute(
             name: RoutingConstants.historyViewRouteName,

@@ -10,13 +10,14 @@ import '../../../../core/common/components/custom_circular_loader.dart';
 import '../../../../core/common/components/custom_message_box.dart';
 import '../../../../core/common/components/pagination_controls.dart';
 import '../../../../core/common/components/highlight_status_container.dart';
-import '../../../../core/constants/assets_path.dart';
+import '../../../../core/common/components/profile_avatar.dart';
 import '../../../../core/enums/purchase_request_status.dart';
 import '../../../../core/features/purchase_request/presentation/bloc/bloc/purchase_requests_bloc.dart';
 import '../../../../core/features/purchase_request/presentation/components/purchase_request_card.dart';
 import '../../../../core/models/purchase_request/purchase_request.dart';
 import '../../../../core/models/user/mobile_user.dart';
 import '../../../../core/utils/capitalizer.dart';
+import '../../../../core/utils/delightful_toast_utils.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../components/summary_card.dart';
 
@@ -39,7 +40,7 @@ class _HomeViewState extends State<HomeView> {
   int _currentPage = 1;
   int _pageSize = 2;
   int _totalRecords = 0;
-  String _filter = 'ongoing';
+  final String _filter = 'ongoing';
 
   @override
   void initState() {
@@ -54,41 +55,38 @@ class _HomeViewState extends State<HomeView> {
         page: _currentPage,
         pageSize: _pageSize,
         filter: _filter,
-        // status: _selectedPrStatus(
-        //   selectedPrStatus: _selectedFilterNotifier.value,
-        // ),
       ),
     );
   }
 
   void _refreshPurchaseRequestList() {
-    //_searchController.clear();
     _currentPage = 1;
-    //_selectedFilterNotifier.value = 'pending';
     _fetchPurchaseRequests();
   }
 
-  PurchaseRequestStatus _selectedPrStatus({
-    required String selectedPrStatus,
-  }) {
-    switch (selectedPrStatus) {
-      case 'pending':
-        return PurchaseRequestStatus.pending;
-      case 'incomplete':
-        return PurchaseRequestStatus.partiallyFulfilled;
-      case 'fulfilled':
-        return PurchaseRequestStatus.fulfilled;
-      case 'cancelled':
-        return PurchaseRequestStatus.cancelled;
-      default:
-        return PurchaseRequestStatus.pending;
-    }
+  void _onViewPurchaseRequest(String prId) {
+    final Map<String, dynamic> extra = {
+      'pr_id': prId,
+      'init_location': RoutingConstants.nestedHomePurchaseRequestViewRoutePath,
+    };
+
+    context.go(
+      RoutingConstants.nestedHomePurchaseRequestViewRoutePath,
+      extra: extra,
+    );
+  }
+
+  void _onFollowUpPurchaseRequest(String prId) {
+    _purchaseRequestsBloc.add(
+      FollowUpPurchaseRequestEvent(
+        prId: prId,
+      ),
+    );
   }
 
   @override
   void dispose() {
     super.dispose();
-
     _pendingPurchaseRequestsCount.dispose();
     _incompletePurchaseRequestsCount.dispose();
     _completePurchaseRequestsCount.dispose();
@@ -151,7 +149,9 @@ class _HomeViewState extends State<HomeView> {
                 ),
               ],
             ),
-            _buildProfileContainer(),
+            ProfileAvatar(
+              user: user,
+            ),
           ],
         );
       },
@@ -242,25 +242,8 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Widget _buildProfileContainer() {
-    return Container(
-      width: 60.0,
-      height: 60.0,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        image: DecorationImage(
-          image: AssetImage(
-            ImagePath.profile,
-          ),
-          fit: BoxFit.cover,
-        ),
-      ),
-    );
-  }
-
   Widget _buildPurchaseRequestsViewSectionHeader() {
     return Column(
-      //crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -310,6 +293,24 @@ class _HomeViewState extends State<HomeView> {
                 .toList(),
           );
         }
+
+        if (state is PurchaseRequestFollowedUp) {
+          DelightfulToastUtils.showDelightfulToast(
+            context: context,
+            icon: HugeIcons.strokeRoundedNotificationSquare,
+            title: 'Followed up',
+            subtitle: state.message,
+          );
+        }
+
+        if (state is PurchaseRequestFollowUpError) {
+          DelightfulToastUtils.showDelightfulToast(
+            context: context,
+            icon: HugeIcons.strokeRoundedNotificationSquare,
+            title: 'Follow Up Error',
+            subtitle: state.message,
+          );
+        }
       },
       child: BlocBuilder<PurchaseRequestsBloc, PurchaseRequestsState>(
         builder: (context, state) {
@@ -328,26 +329,14 @@ class _HomeViewState extends State<HomeView> {
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: () async => _refreshPurchaseRequestList(),
-                  color: AppColor.accent,
                   child: ListView.builder(
                     itemCount: _purchaseRequests.length,
                     itemBuilder: (context, index) {
                       final pr = _purchaseRequests[index];
 
                       return PurchaseRequestCard(
-                        onView: (_) {
-                          final Map<String, dynamic> extra = {
-                            'pr_id': pr.id,
-                            'init_location': RoutingConstants.nestedHomePurchaseRequestViewRoutePath,
-                          };
-
-                          context.go(
-                            RoutingConstants
-                                .nestedHomePurchaseRequestViewRoutePath,
-                            extra: extra,
-                          );
-                        },
-                        onNotify: (_) {},
+                        onView: (_) => _onViewPurchaseRequest(pr.id),
+                        onNotify: (_) => _onFollowUpPurchaseRequest(pr.id),
                         prId: pr.id,
                         itemName: pr.productNameEntity.name,
                         purpose: pr.purpose,
@@ -373,7 +362,9 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  StatusStyle _prStatusStyler({required PurchaseRequestStatus prStatus}) {
+  StatusStyle _prStatusStyler({
+    required PurchaseRequestStatus prStatus,
+  }) {
     switch (prStatus) {
       case PurchaseRequestStatus.pending:
         return StatusStyle.yellow(label: 'Pending');

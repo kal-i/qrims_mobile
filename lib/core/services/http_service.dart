@@ -68,7 +68,7 @@ class HttpService {
   Future<Response> patch({
     required String endpoint,
     Map<String, dynamic>? queryParams,
-    required Map<String, dynamic> params,
+    Map<String, dynamic>? params,
   }) async {
     print('patch triggered');
     print('bearer token: $bearerToken');

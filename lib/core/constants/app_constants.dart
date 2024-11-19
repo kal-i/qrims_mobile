@@ -26,6 +26,7 @@ const userActsEP = '/user_activities';
 /// item endpoints
 const itemsEP = '/items';
 const itemsIdEP = '$itemsEP/id';
+const itemsEncryptedIdEP = '$itemsEP/encrypted_id';
 const itemNamesEP = '$itemsEP/product_names';
 const itemDescriptionsEP = '$itemsEP/product_descriptions';
 const itemManufacturersEP = '$itemsEP/manufacturers';
@@ -41,6 +42,7 @@ const entitiesEP = '/entities';
 
 const purchaseRequestsEP = '/purchase_requests';
 const purchaseRequestIdEP = '$purchaseRequestsEP/id';
+const purchaseRequestFollowUpEP = '$purchaseRequestsEP/follow_up';
 const requestingOfficerPurchaseRequestsEP = '$purchaseRequestsEP/receiving_officer';
 
 const issuancesEP = '/issuances';

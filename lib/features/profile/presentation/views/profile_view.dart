@@ -17,7 +17,7 @@ import '../../../../config/themes/bloc/theme_bloc.dart';
 import '../../../../core/common/components/custom_filled_button.dart';
 import '../../../../core/common/components/custom_message_box.dart';
 import '../../../../core/common/components/custom_outline_button.dart';
-import '../../../../core/common/components/profile_container.dart';
+import '../../../../core/common/components/profile_avatar.dart';
 import '../../../../core/models/user/mobile_user.dart';
 import '../../../../core/utils/capitalizer.dart';
 import '../../../../core/utils/delightful_toast_utils.dart';
@@ -159,9 +159,9 @@ class _ProfileViewState extends State<ProfileView> {
   Widget _buildProfileSection() {
     return Row(
       children: [
-        const ProfileContainer(
-          size: 80.0,
-        ),
+        // const ProfileAvatar(
+        //   size: 80.0, user: null,
+        // ),
         SizedBox(
           width: SizingConfig.widthMultiplier * 5.0,
         ),

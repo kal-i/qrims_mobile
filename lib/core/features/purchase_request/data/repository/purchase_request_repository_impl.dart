@@ -55,4 +55,20 @@ class PurchaseRequestRepositoryImpl implements PurchaseRequestRepository {
       return left(Failure(e.message));
     }
   }
+
+  @override
+  Future<Either<Failure, String>> followUpPurchaseRequest({
+    required String prId,
+  }) async {
+    try {
+      final response =
+          await purchaseRequestRemoteDataSource.followUpPurchaseRequest(
+        prId: prId,
+      );
+
+      return right(response);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
 }

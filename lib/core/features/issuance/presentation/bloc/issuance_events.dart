@@ -14,3 +14,11 @@ final class GetIssuanceByIdEvent extends IssuancesEvent {
 
   final String id;
 }
+
+final class ReceiveIssuanceEvent extends IssuancesEvent {
+  const ReceiveIssuanceEvent({
+    required this.id,
+  });
+
+  final String id;
+}

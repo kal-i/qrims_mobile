@@ -20,20 +20,6 @@ class RoutingConstants {
   static const homeViewRouteName = 'homeView';
   static const homeViewRoutePath = '/home';
 
-  static const viewPurchaseRequestRouteName = 'viewPurchaseRequest';
-  static const viewPurchaseRequestRoutePath = 'viewPurchaseRequest';
-  static const nestedHomePurchaseRequestViewRoutePath = '$homeViewRoutePath/$viewPurchaseRequestRoutePath';
-  static const nestedHistoryPurchaseRequestViewRoutePath = '$historyViewRoutePath/$viewPurchaseRequestRoutePath';
-  static const viewPurchaseRequestFromHomeRouteName = 'viewPurchaseRequestFromHome';
-  static const viewPurchaseRequestFromHistoryRouteName = 'viewPurchaseRequestFromHistory';
-
-  static const viewIssuanceRouteName = 'viewIssuance';
-  static const viewIssuanceRoutePath = 'viewIssuance';
-  static const nestedHomeIssuanceViewRoutePath = '$homeViewRoutePath/$viewIssuanceRoutePath';
-  static const nestedHistoryIssuanceViewRoutePath = '$historyViewRoutePath/$viewIssuanceRoutePath';
-  static const viewIssuanceFromHomeRouteName = 'viewIssuanceFromHome';
-  static const viewIssuanceFromHistoryRouteName = 'viewIssuanceFromHistory';
-
   static const notificationViewRouteName = 'notificationView';
   static const notificationViewRoutePath = '/notification';
 
@@ -45,6 +31,31 @@ class RoutingConstants {
 
   static const profileViewRouteName = 'profileView';
   static const profileViewRoutePath = '/profile';
+
+  static const viewPurchaseRequestRouteName = 'viewPurchaseRequest';
+  static const viewPurchaseRequestRoutePath = 'viewPurchaseRequest';
+  static const viewPurchaseRequestFromHomeRouteName = 'viewPurchaseRequestFromHome';
+  static const viewPurchaseRequestFromNotificationRouteName = 'viewPurchaseRequestFromNotification';
+  static const viewPurchaseRequestFromQRScannerRouteName = 'viewPurchaseRequestFromQRScanner';
+  static const viewPurchaseRequestFromHistoryRouteName = 'viewPurchaseRequestFromHistory';
+  static const nestedHomePurchaseRequestViewRoutePath = '$homeViewRoutePath/$viewPurchaseRequestRoutePath';
+  static const nestedNotificationPurchaseRequestViewRoutePath = '$notificationViewRoutePath/$viewPurchaseRequestRoutePath';
+  static const nestedHistoryPurchaseRequestViewRoutePath = '$historyViewRoutePath/$viewPurchaseRequestRoutePath';
+
+  static const viewIssuanceRouteName = 'viewIssuance';
+  static const viewIssuanceRoutePath = 'viewIssuance';
+  static const viewIssuanceFromHomeRouteName = 'viewIssuanceFromHome';
+  static const viewIssuanceFromNotificationRouteName = 'viewIssuanceFromNotification';
+  static const viewIssuanceFromQRScannerRouteName = 'viewIssuanceFromQRScanner';
+  static const viewIssuanceFromHistoryRouteName = 'viewIssuanceFromHistory';
+  static const nestedHomeIssuanceViewRoutePath = '$homeViewRoutePath/$viewIssuanceRoutePath';
+  static const nestedNotificationIssuanceViewRoutePath = '$notificationViewRoutePath/$viewIssuanceRoutePath';
+  static const nestedQRScannerIssuanceViewRoutePath = '$qrScannerViewRoutePath/$viewIssuanceRoutePath';
+  static const nestedHistoryIssuanceViewRoutePath = '$historyViewRoutePath/$viewIssuanceRoutePath';
+
+  static const viewItemRouteName = 'viewItem';
+  static const viewItemRoutePath = 'item';
+  static const nestedQRScannerItemViewRoutePath = '$qrScannerViewRoutePath/$viewItemRoutePath';
 
   static const settingsViewRouteName = 'settingsView';
   static const settingsViewRoutePath = 'settings';

@@ -25,14 +25,10 @@ class MobileUserModel extends MobileUserEntity implements UserModel {
   factory MobileUserModel.fromJson(Map<String, dynamic> json) {
     final authStatusString = json['auth_status'] as String;
 
-    print('AuthStatus string from JSON: $authStatusString');
-
     // remove the prefix value in enums if present
     final authStatusValue = authStatusString.startsWith('AuthStatus.')
         ? authStatusString.substring(10)
         : authStatusString;
-
-    print('processed AuthStatus String: $authStatusValue');
 
     // extract the last part of the role then compare to the retrieved role String
     final authStatus = AuthStatus.values.firstWhere(
@@ -40,11 +36,11 @@ class MobileUserModel extends MobileUserEntity implements UserModel {
       orElse: () => AuthStatus.unauthenticated,
     );
 
-    print('AuthStatus after conversion: $authStatus');
-
     final adminApprovalStatus = AdminApprovalStatus.values.firstWhere(
       (e) => e.toString().split('.').last == json['admin_approval_status'],
     );
+
+    final officer = OfficerModel.fromJson(json['officer']);
 
     return MobileUserModel(
       id: json['user_id'],
@@ -67,7 +63,7 @@ class MobileUserModel extends MobileUserEntity implements UserModel {
           ? json['profile_image'] as String
           : null,
       mobileUserId: json['mobile_user_id'],
-      officerEntity: OfficerModel.fromJson(json['officer']),
+      officerEntity: officer,
       adminApprovalStatus: adminApprovalStatus,
     );
   }

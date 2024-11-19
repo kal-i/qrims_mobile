@@ -27,4 +27,19 @@ class IssuanceRepositoryImpl implements IssuanceRepository {
       return left(Failure(e.message));
     }
   }
+
+  @override
+  Future<Either<Failure, IssuanceEntity?>> receiveIssuance({
+    required String id,
+  }) async {
+    try {
+      final response = await issuanceRemoteDataSource.receiveIssuance(
+        id: id,
+      );
+
+      return right(response);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
 }

@@ -17,4 +17,8 @@ abstract interface class PurchaseRequestRepository {
    Future<Either<Failure, PurchaseRequestWithNotificationTrailEntity>> getPurchaseRequestById({
      required String prId,
    });
+
+   Future<Either<Failure, String>> followUpPurchaseRequest({
+     required String prId,
+   });
 }

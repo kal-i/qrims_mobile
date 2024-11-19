@@ -17,6 +17,7 @@ import '../../../../core/enums/purchase_request_status.dart';
 import '../../../../core/features/purchase_request/presentation/bloc/bloc/purchase_requests_bloc.dart';
 import '../../../../core/features/purchase_request/presentation/components/purchase_request_card.dart';
 import '../../../../core/models/purchase_request/purchase_request.dart';
+import '../../../../core/utils/delightful_toast_utils.dart';
 
 class HistoryView extends StatefulWidget {
   const HistoryView({super.key});
@@ -41,7 +42,7 @@ class _HistoryViewState extends State<HistoryView> {
   int _currentPage = 1;
   int _pageSize = 5;
   int _totalRecords = 0;
-  String _filter = 'history';
+  final String _filter = 'history';
 
   @override
   void initState() {
@@ -58,9 +59,6 @@ class _HistoryViewState extends State<HistoryView> {
         pageSize: _pageSize,
         prId: _searchController.text,
         filter: _filter,
-        // status: _selectedPrStatus(
-        //   selectedPrStatus: _selectedFilterNotifier.value,
-        // ),
       ),
     );
   }
@@ -80,27 +78,32 @@ class _HistoryViewState extends State<HistoryView> {
     });
   }
 
-  PurchaseRequestStatus _selectedPrStatus({
-    required String selectedPrStatus,
-  }) {
-    switch (selectedPrStatus) {
-      case 'pending':
-        return PurchaseRequestStatus.pending;
-      case 'incomplete':
-        return PurchaseRequestStatus.partiallyFulfilled;
-      case 'fulfilled':
-        return PurchaseRequestStatus.fulfilled;
-      case 'cancelled':
-        return PurchaseRequestStatus.cancelled;
-      default:
-        return PurchaseRequestStatus.pending;
-    }
+  void _onViewPurchaseRequest(String prId) {
+    final Map<String, dynamic> extra = {
+      'pr_id': prId,
+      'init_location':
+      RoutingConstants.nestedHistoryPurchaseRequestViewRoutePath,
+    };
+
+    context.go(
+      RoutingConstants.nestedHistoryPurchaseRequestViewRoutePath,
+      extra: extra,
+    );
+  }
+
+  void _onFollowUpPurchaseRequest(String prId) {
+    _purchaseRequestsBloc.add(
+      FollowUpPurchaseRequestEvent(
+        prId: prId,
+      ),
+    );
   }
 
   @override
   void dispose() {
     super.dispose();
-
+    _searchController.dispose();
+    _debounce?.cancel();
     _pendingPurchaseRequestsCount.dispose();
     _incompletePurchaseRequestsCount.dispose();
     _completePurchaseRequestsCount.dispose();
@@ -164,6 +167,24 @@ class _HistoryViewState extends State<HistoryView> {
                 .toList(),
           );
         }
+
+        if (state is PurchaseRequestFollowedUp) {
+          DelightfulToastUtils.showDelightfulToast(
+            context: context,
+            icon: HugeIcons.strokeRoundedNotificationSquare,
+            title: 'Followed up',
+            subtitle: state.message,
+          );
+        }
+
+        if (state is PurchaseRequestFollowUpError) {
+          DelightfulToastUtils.showDelightfulToast(
+            context: context,
+            icon: HugeIcons.strokeRoundedNotificationSquare,
+            title: 'Follow Up Error',
+            subtitle: state.message,
+          );
+        }
       },
       child: BlocBuilder<PurchaseRequestsBloc, PurchaseRequestsState>(
         builder: (context, state) {
@@ -189,19 +210,8 @@ class _HistoryViewState extends State<HistoryView> {
                       final pr = _purchaseRequests[index];
 
                       return PurchaseRequestCard(
-                        onView: (_) {
-                          final Map<String, dynamic> extra = {
-                            'pr_id': pr.id,
-                            'init_location': RoutingConstants.nestedHistoryPurchaseRequestViewRoutePath,
-                          };
-
-                          context.go(
-                            RoutingConstants
-                                .nestedHistoryPurchaseRequestViewRoutePath,
-                            extra: extra,
-                          );
-                        },
-                        onNotify: (_) {},
+                        onView: (_) => _onViewPurchaseRequest(pr.id),
+                        onNotify: (_) => _onFollowUpPurchaseRequest(pr.id),
                         prId: pr.id,
                         itemName: pr.productNameEntity.name,
                         purpose: pr.purpose,
@@ -223,7 +233,6 @@ class _HistoryViewState extends State<HistoryView> {
 
   Widget _buildPurchaseRequestsViewSectionHeader() {
     return Column(
-      //crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -231,8 +240,8 @@ class _HistoryViewState extends State<HistoryView> {
             Text(
               'History',
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
+                    fontWeight: FontWeight.w500,
+                  ),
             ),
             PaginationControls(
               currentPage: _currentPage,

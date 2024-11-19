@@ -14,4 +14,8 @@ abstract interface class PurchaseRequestRemoteDataSource {
   Future<PurchaseRequestWithNotificationTrailModel> getPurchaseRequestById({
     required String prId,
   });
+
+  Future<String> followUpPurchaseRequest({
+    required String prId,
+  });
 }

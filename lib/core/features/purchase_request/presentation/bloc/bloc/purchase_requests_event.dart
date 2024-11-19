@@ -38,3 +38,11 @@ final class GetPurchaseRequestByIdEvent extends PurchaseRequestsEvent {
 
   final String prId;
 }
+
+final class FollowUpPurchaseRequestEvent extends PurchaseRequestsEvent {
+  const FollowUpPurchaseRequestEvent({
+    required this.prId,
+  });
+
+  final String prId;
+}

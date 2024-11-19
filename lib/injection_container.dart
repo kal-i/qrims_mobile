@@ -7,11 +7,13 @@ import 'core/features/issuance/data/data_sources/remote/issuance_remote_data_sou
 import 'core/features/issuance/data/repository/issuance_repository_impl.dart';
 import 'core/features/issuance/domain/repository/issuance_repository.dart';
 import 'core/features/issuance/domain/usecases/get_issuance_by_id.dart';
+import 'core/features/issuance/domain/usecases/receive_issuance.dart';
 import 'core/features/issuance/presentation/bloc/issuances_bloc.dart';
 import 'core/features/purchase_request/data/data_sources/remote/purchase_request_remote_data_source.dart';
 import 'core/features/purchase_request/data/data_sources/remote/purchase_request_remote_data_source_impl.dart';
 import 'core/features/purchase_request/data/repository/purchase_request_repository_impl.dart';
 import 'core/features/purchase_request/domain/repository/purchase_request_repository.dart';
+import 'core/features/purchase_request/domain/usecases/follow_up_purchase_request.dart';
 import 'core/features/purchase_request/domain/usecases/get_paginated_purchase_requests.dart';
 import 'core/features/purchase_request/domain/usecases/get_purchase_request_by_id.dart';
 import 'core/features/purchase_request/presentation/bloc/bloc/purchase_requests_bloc.dart';
@@ -32,6 +34,12 @@ import 'features/auth/domain/usecases/user_update_info.dart';
 import 'features/auth/domain/usecases/user_verify_otp.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 
+import 'features/item/data/data_sources/remote/item_remote_data_source.dart';
+import 'features/item/data/data_sources/remote/item_remote_data_source_impl.dart';
+import 'features/item/data/repository/item_repository_impl.dart';
+import 'features/item/domain/repository/item_repository.dart';
+import 'features/item/domain/usecases/get_item_by_encrypted_id.dart';
+import 'features/item/presentation/bloc/item_bloc.dart';
 import 'features/notification/data/data_sources/remote/notification_remote_data_source.dart';
 import 'features/notification/data/data_sources/remote/notification_remote_data_source_impl.dart';
 import 'features/notification/data/repository/notification_repository_impl.dart';
@@ -49,6 +57,7 @@ Future<void> initializeDependencies() async {
   _registerAuthDependencies();
   _registerPurchaseRequestsDependencies();
   _registerIssuanceDependencies();
+  _registerItemDependencies();
   _registerNotificationDependencies();
 }
 
@@ -136,10 +145,15 @@ void _registerPurchaseRequestsDependencies() {
     () => GetPurchaseRequestById(purchaseRequestRepository: serviceLocator()),
   );
 
+  serviceLocator.registerFactory<FollowUpPurchaseRequest>(
+    () => FollowUpPurchaseRequest(purchaseRequestRepository: serviceLocator()),
+  );
+
   serviceLocator.registerFactory<PurchaseRequestsBloc>(
     () => PurchaseRequestsBloc(
       getPaginatedPurchaseRequests: serviceLocator(),
       getPurchaseRequestById: serviceLocator(),
+      followUpPurchaseRequest: serviceLocator(),
     ),
   );
 }
@@ -158,9 +172,35 @@ void _registerIssuanceDependencies() {
     () => GetIssuanceById(issuanceRepository: serviceLocator()),
   );
 
+  serviceLocator.registerFactory<ReceiveIssuance>(
+    () => ReceiveIssuance(issuanceRepository: serviceLocator()),
+  );
+
   serviceLocator.registerFactory<IssuancesBloc>(
     () => IssuancesBloc(
       getIssuanceById: serviceLocator(),
+      receiveIssuance: serviceLocator(),
+    ),
+  );
+}
+
+/// Issuance
+void _registerItemDependencies() {
+  serviceLocator.registerFactory<ItemRemoteDataSource>(
+    () => ItemRemoteDataSourceImpl(httpService: serviceLocator()),
+  );
+
+  serviceLocator.registerFactory<ItemRepository>(
+    () => ItemRepositoryImpl(itemRemoteDataSource: serviceLocator()),
+  );
+
+  serviceLocator.registerFactory<GetItemByEncryptedId>(
+    () => GetItemByEncryptedId(itemRepository: serviceLocator()),
+  );
+
+  serviceLocator.registerFactory<ItemBloc>(
+    () => ItemBloc(
+      getItemByEncryptedId: serviceLocator(),
     ),
   );
 }
@@ -181,7 +221,7 @@ void _registerNotificationDependencies() {
   );
 
   serviceLocator.registerFactory<ReadNotification>(
-        () => ReadNotification(notificationRepository: serviceLocator()),
+    () => ReadNotification(notificationRepository: serviceLocator()),
   );
 
   serviceLocator.registerFactory<NotificationsBloc>(

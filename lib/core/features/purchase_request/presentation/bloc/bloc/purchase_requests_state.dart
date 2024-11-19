@@ -43,6 +43,22 @@ final class PurchaseRequestLoaded extends PurchaseRequestsState {
   final PurchaseRequestWithNotificationTrailEntity purchaseRequestWithNotificationTrailEntity;
 }
 
+final class PurchaseRequestFollowedUp extends PurchaseRequestsState {
+  const PurchaseRequestFollowedUp({
+    required this.message,
+  });
+
+  final String message;
+}
+
+final class PurchaseRequestFollowUpError extends PurchaseRequestsState {
+  const PurchaseRequestFollowUpError({
+    required this.message,
+  });
+
+  final String message;
+}
+
 final class PurchaseRequestsError extends PurchaseRequestsState {
   const PurchaseRequestsError({
     required this.message,

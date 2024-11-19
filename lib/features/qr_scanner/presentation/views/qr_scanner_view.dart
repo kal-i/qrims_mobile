@@ -2,13 +2,15 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:dio/dio.dart';
 
 import '../../../../config/routes/app_router.dart';
+import '../../../../config/routes/app_routing_constants.dart';
+import '../../../../config/sizing/sizing_config.dart';
 import '../../../../config/themes/app_color.dart';
-
 
 class QrScannerView extends StatefulWidget {
   const QrScannerView({super.key});
@@ -23,6 +25,8 @@ class _QrScannerViewState extends State<QrScannerView>
   StreamSubscription<Object?>? _subscription;
 
   final ValueNotifier<String?> _encryptedId = ValueNotifier(null);
+
+  DateTime? _lastScanTime;
 
   @override
   void initState() {
@@ -42,18 +46,53 @@ class _QrScannerViewState extends State<QrScannerView>
   }
 
   void _handleBarcode(BarcodeCapture capture) async {
-    final encryptedId = capture.barcodes.first.rawValue;
-
-    print(capture.barcodes.first.rawValue);
-    final response = await Dio().get('http://192.168.1.8:8080/items/encrypted_id/$encryptedId');
-  }
-
-  void _fetchEncryptedIdInformation() {
-    if (_encryptedId.value != null && _encryptedId.value!.isNotEmpty) {
-      //context.go();
+    if (_lastScanTime != null &&
+        DateTime.now().difference(_lastScanTime!) <
+            const Duration(seconds: 2)) {
+      return;
     }
-    //final response = await Dio().get('http://192.168.1.8:8080/items/encrypted_id/$encryptedId');
+
+    _lastScanTime = DateTime.now();
+    final encryptedId = capture.barcodes.first.rawValue;
+    _encryptedId.value = encryptedId;
   }
+
+  void _fetchQRInformationInformation() {
+    // Ensure the value is not null and not empty
+    if (_encryptedId.value != null && _encryptedId.value!.isNotEmpty) {
+      final issuancePattern = RegExp(r'ISS-\d{4}-\d{2}-\d+');
+
+      // Check if the encrypted id matches the issuance pattern
+      final match = issuancePattern.firstMatch(_encryptedId.value!);
+
+      if (match != null) {
+        final issuanceId = match.group(0); // Extract the matched issuance ID
+
+        // Redirect to the route if a match is found
+        context.go(
+          RoutingConstants.nestedQRScannerIssuanceViewRoutePath,
+          extra: {
+            'issuance_id': issuanceId,
+          },
+        );
+      } else {
+        // Handle case where the pattern does not match
+        debugPrint('No valid issuance ID found in: ${_encryptedId.value}');
+        context.go(
+          RoutingConstants.nestedQRScannerItemViewRoutePath,
+          extra: {
+            'item_id': _encryptedId.value,
+          },
+        );
+      }
+    } else {
+      debugPrint('No encrypted ID provided or it is empty.');
+    }
+  }
+
+  //final response = await Dio().get('http://192.168.1.8:8080/items/encrypted_id/$encryptedId');
+  // final response = await Dio()
+  //     .get('http://192.168.1.8:8080/items/encrypted_id/$encryptedId');
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -114,7 +153,10 @@ class _QrScannerViewState extends State<QrScannerView>
         // blur
         Positioned.fill(
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+            filter: ImageFilter.blur(
+              sigmaX: 10.0,
+              sigmaY: 10.0,
+            ),
             child: Container(
               color: Theme.of(context)
                   .primaryColor
@@ -153,7 +195,7 @@ class _QrScannerViewState extends State<QrScannerView>
 
         // Layer 4: Header with back button and flash toggle
         Positioned(
-          top: 70,
+          top: 50,
           left: 10,
           right: 10,
           child: _headerActionsRow(),
@@ -161,7 +203,7 @@ class _QrScannerViewState extends State<QrScannerView>
 
         // Layer 5: Bottom product information display (after scanning)
         Positioned(
-          bottom: 30,
+          bottom: 20,
           left: 20,
           right: 20,
           child: _scannedQrDataContainer(),
@@ -174,7 +216,12 @@ class _QrScannerViewState extends State<QrScannerView>
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const BackButton(),
+        Text(
+          'Scan QR Code',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontSize: 24.0,
+              ),
+        ),
         IconButton(
           onPressed: _controller.toggleTorch,
           icon: const Icon(
@@ -188,8 +235,8 @@ class _QrScannerViewState extends State<QrScannerView>
 
   Widget _scannedQrDataContainer() {
     return Container(
-      padding: EdgeInsets.all(10.0),
-      height: 80.0,
+      padding: const EdgeInsets.all(10.0),
+      height: SizingConfig.heightMultiplier * 8.5,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.0),
@@ -198,8 +245,8 @@ class _QrScannerViewState extends State<QrScannerView>
         children: [
           Expanded(
             child: Container(
-              padding: EdgeInsets.all(5.0),
-              height: 50.0,
+              padding: const EdgeInsets.all(5.0),
+              height: SizingConfig.heightMultiplier * 6.0,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10.0),
                 color: AppColor.lightBackground,
@@ -208,24 +255,25 @@ class _QrScannerViewState extends State<QrScannerView>
                 children: [
                   Expanded(
                     child: ValueListenableBuilder(
-                      valueListenable: _encryptedId,
-                      builder: (context, encryptedId, child) {
-                        return Text(encryptedId ?? '');
-                      }
-                    ),
+                        valueListenable: _encryptedId,
+                        builder: (context, encryptedId, child) {
+                          return Text(encryptedId ?? '');
+                        }),
                   ),
                   Row(
                     children: [
-                      Icon(
-                        HugeIcons.strokeRoundedDelete01,
-                        size: 20.0,
+                      GestureDetector(
+                        onTap: () => _encryptedId.value = '',
+                        child: const Icon(
+                          HugeIcons.strokeRoundedDelete01,
+                          size: 20.0,
+                        ),
                       ),
-                      Padding(padding: EdgeInsets.symmetric(horizontal: 5.0), child: Text('|'),),
-                      // const SizedBox(
-                      //   width: 10.0,
-                      //   child: Text('|'),
-                      // ),
-                      Icon(
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 5.0),
+                        child: Text('|'),
+                      ),
+                      const Icon(
                         HugeIcons.strokeRoundedCopy01,
                         size: 20.0,
                       ),
@@ -235,19 +283,25 @@ class _QrScannerViewState extends State<QrScannerView>
               ),
             ),
           ),
-          const SizedBox(width: 10),
+          SizedBox(
+            width: SizingConfig.widthMultiplier * 2.0,
+          ),
           Container(
-              padding: EdgeInsets.all(5.0),
-              height: 50.0,
-              width: 50.0,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.0),
-                color: AppColor.darkPrimary,
-              ),
-              child: Icon(
+            padding: const EdgeInsets.all(5.0),
+            height: SizingConfig.heightMultiplier * 6.0,
+            width: 50.0,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10.0),
+              color: AppColor.darkPrimary,
+            ),
+            child: GestureDetector(
+              onTap: _fetchQRInformationInformation,
+              child: const Icon(
                 HugeIcons.strokeRoundedSent,
                 size: 32.0,
-              ),),
+              ),
+            ),
+          ),
         ],
       ),
     );

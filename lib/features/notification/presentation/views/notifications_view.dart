@@ -1,23 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:hugeicons/hugeicons.dart';
-import 'package:badges/badges.dart' as badges;
+import 'package:go_router/go_router.dart';
 
+import '../../../../config/routes/app_routing_constants.dart';
 import '../../../../config/sizing/sizing_config.dart';
 import '../../../../config/themes/app_color.dart';
-import '../../../../config/themes/bloc/theme_bloc.dart';
-import '../../../../core/common/components/base_container.dart';
 import '../../../../core/common/components/custom_message_box.dart';
+import '../components/notification_card.dart';
 import '../../../../core/common/components/pagination_controls.dart';
-import '../../../../core/constants/assets_path.dart';
-import '../../../../core/entities/user/supply_department_employee.dart';
-import '../../../../core/models/user/mobile_user.dart';
-import '../../../../core/models/user/supply_department_employee.dart';
-import '../../../../core/utils/capitalizer.dart';
-import '../../../../core/utils/date_formatter.dart';
-import '../../../../core/utils/readable_enum_converter.dart';
-import '../../../../core/utils/time_ago_formatter.dart';
 import '../../data/models/notification.dart';
 import '../bloc/notifications_bloc.dart';
 
@@ -31,8 +22,7 @@ class NotificationsView extends StatefulWidget {
 class _NotificationsViewState extends State<NotificationsView> {
   late NotificationsBloc _notificationsBloc;
 
-  // final ValueNotifier<List<int>> _items = ValueNotifier(List.generate(10, (index) => index + 1));
-  // final _scrollController = ScrollController();
+  final List<NotificationModel> _notifications = [];
 
   int _currentPage = 1;
   int _pageSize = 5;
@@ -59,9 +49,70 @@ class _NotificationsViewState extends State<NotificationsView> {
     _fetchNotifications();
   }
 
+  void _markNotificationAsRead(
+    NotificationModel notification,
+  ) {
+    if (!notification.read) {
+      _notificationsBloc.add(ReadNotificationEvent(
+        notificationId: notification.id,
+        read: true,
+      ));
+    }
+  }
+
+  void _readNotification(
+    NotificationModel notification,
+  ) {
+    _markNotificationAsRead(notification);
+
+    final issuancePattern = RegExp(r'ISS-\d{4}-\d{2}-\d+');
+    final purchaseRequestPattern = RegExp(r'\d{4}-\d{2}-\d+');
+
+    final issuanceMatch = issuancePattern.firstMatch(notification.message);
+    if (issuanceMatch != null) {
+      final trackingId = issuanceMatch.group(0);
+      if (trackingId != null) {
+        context.go(
+          RoutingConstants.nestedNotificationIssuanceViewRoutePath,
+          extra: {
+            'issuance_id': trackingId,
+          },
+        );
+        return;
+      }
+    }
+
+    final purchaseRequestMatch =
+        purchaseRequestPattern.firstMatch(notification.message);
+    if (purchaseRequestMatch != null) {
+      final trackingId = purchaseRequestMatch.group(0);
+      if (trackingId != null) {
+        context.go(
+            RoutingConstants.nestedNotificationPurchaseRequestViewRoutePath,
+            extra: {
+              'pr_id': trackingId,
+              'init_location': RoutingConstants.notificationViewRoutePath,
+            });
+        return;
+      }
+    }
+  }
+
+  void _toggleNotificationRead(
+      NotificationModel notification,
+      ) {
+    final newReadStatus = !notification.read;
+
+    _notificationsBloc.add(
+      ReadNotificationEvent(
+        notificationId: notification.id,
+        read: newReadStatus,
+      ),
+    );
+  }
+
   @override
   void dispose() {
-    //_scrollController.dispose();
     super.dispose();
   }
 
@@ -73,6 +124,16 @@ class _NotificationsViewState extends State<NotificationsView> {
           listener: (context, state) {
             if (state is NotificationsLoaded) {
               _totalRecords = state.totalNotificationsCount;
+              _notifications.clear();
+              _notifications.addAll(
+                state.notifications
+                    .map((notif) => notif as NotificationModel)
+                    .toList(),
+              );
+            }
+
+            if (state is NotificationRead && state.isSuccessful) {
+              _fetchNotifications();
             }
           },
           child: BlocBuilder<NotificationsBloc, NotificationsState>(
@@ -97,20 +158,9 @@ class _NotificationsViewState extends State<NotificationsView> {
                     CustomMessageBox.error(
                       message: state.message,
                     ),
-                  if (state is NotificationsLoaded)
-                    Expanded(
-                      child: RefreshIndicator(
-                        onRefresh: () async => _refreshNotificationList(),
-                        child: ListView.builder(
-                          itemCount: state.notifications.length,
-                          itemBuilder: (context, index) {
-                            final notification = state.notifications[index];
-                            return _buildNotificationCard(
-                                notification as NotificationModel);
-                          },
-                        ),
-                      ),
-                    ),
+                  Expanded(
+                    child: _buildNotificationList(),
+                  ),
                 ],
               ),
             );
@@ -122,7 +172,6 @@ class _NotificationsViewState extends State<NotificationsView> {
 
   Widget _buildNotificationHeader() {
     return Column(
-      //crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -152,116 +201,17 @@ class _NotificationsViewState extends State<NotificationsView> {
     );
   }
 
-  Widget _buildNotificationCard(NotificationModel notification) {
-    // I need your suggestion here because the supply dept employee model contains role which I may need to display along with the name
-    // if user is mobile user, I need to display the office name and position
-    final user = notification.sender is SupplyDepartmentEmployeeModel
-        ? SupplyDepartmentEmployeeModel.fromEntity(
-            notification.sender as SupplyDepartmentEmployeeEntity)
-        : MobileUserModel.fromEntity(notification.sender as MobileUserModel);
-
-    String? userInfo = '';
-    if (user is SupplyDepartmentEmployeeModel) {
-      userInfo = readableEnumConverter(user.role);
-    }
-
-    if (user is MobileUserModel) {
-      userInfo =
-          '${user.officerEntity.officeName} - ${user.officerEntity.positionName}';
-    }
-
-    final ValueNotifier<bool> read = ValueNotifier(notification.read);
-
-    return GestureDetector(
-      onTap: () {
-        _notificationsBloc.add(ReadNotificationEvent(notificationId: notification.id, read: true,),);
-      },
-      child: ValueListenableBuilder(
-        valueListenable: read,
-        builder: (context, read, child) {
-          return BaseContainer(
-            child: badges.Badge(
-              showBadge: read, // !notification.read,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      /// init part
-                      Container(
-                        width: 60.0,
-                        height: 60.0,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                            image: AssetImage(
-                              ImagePath.profile,
-                            ),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-
-                      SizedBox(
-                        width: SizingConfig.widthMultiplier * 5.0,
-                      ),
-
-                      /// middle part
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  capitalizeWord(user.name),
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                        fontSize: SizingConfig.textMultiplier * 1.8,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                ),
-                                SizedBox(
-                                  width: SizingConfig.widthMultiplier * 2.0,
-                                ),
-                                Text(userInfo!,
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    color: AppColor.accent,
-                                    fontSize: SizingConfig.textMultiplier * 1.5,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: SizingConfig.heightMultiplier * .5,
-                            ),
-                            Text(
-                              notification.message,
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                fontSize: SizingConfig.textMultiplier * 1.5,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      /// end part
-                      Text(
-                        timeAgo(notification.createdAt!),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontSize: SizingConfig.textMultiplier * 1.5,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
+  Widget _buildNotificationList() {
+    return RefreshIndicator(
+      color: AppColor.accent,
+      onRefresh: () async => _refreshNotificationList(),
+      child: ListView.builder(
+        itemCount: _notifications.length,
+        itemBuilder: (context, index) => NotificationCard(
+          notification: _notifications[index],
+          onNotificationTap: (notification) => _readNotification(notification),
+          onMarkAsRead: (notification) => _toggleNotificationRead(notification),
+        ),
       ),
     );
   }

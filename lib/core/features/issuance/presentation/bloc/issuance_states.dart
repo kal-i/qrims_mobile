@@ -33,6 +33,36 @@ final class IssuancesError extends IssuancesState {
 
   @override
   List<Object?> get props => [
-        message,
-      ];
+    message,
+  ];
 }
+
+/// state specifically for receiving issuance only
+final class ReceivedIssuance extends IssuancesState {
+  const ReceivedIssuance({
+    required this.issuance,
+  });
+
+  final IssuanceEntity issuance;
+
+  @override
+  List<Object?> get props => [
+    issuance,
+  ];
+}
+
+final class ReceivingIssuanceLoading extends IssuancesState {}
+
+final class ReceiveIssuanceError extends IssuancesState {
+  const ReceiveIssuanceError({
+    required this.message,
+  });
+
+  final String message;
+
+  @override
+  List<Object?> get props => [
+    message,
+  ];
+}
+
