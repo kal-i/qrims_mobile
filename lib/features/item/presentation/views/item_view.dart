@@ -209,7 +209,7 @@ class _ItemViewState extends State<ItemView> {
         children: [
           const CustomCircularLoader(),
           Text(
-            'Fetching purchase request...',
+            'Fetching data...',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   fontSize: SizingConfig.textMultiplier * 1.8,
                   fontWeight: FontWeight.w400,

@@ -227,10 +227,10 @@ class AppRoutingConfig {
                   final Map<String, dynamic> extras =
                       state.extra as Map<String, dynamic>;
                   final itemId = extras['item_id'] as String;
-
+                  final decodedId = Uri.decodeComponent(itemId);
                   return MaterialPage(
                     child: ItemView(
-                      itemId: itemId,
+                      itemId: decodedId,
                     ),
                   );
                 },

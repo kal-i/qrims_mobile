@@ -63,7 +63,7 @@ class PurchaseRequestCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'PR-$prId',
+                  'PR #$prId',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontSize: SizingConfig.textMultiplier * 1.8,
                         fontWeight: FontWeight.w600,

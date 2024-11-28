@@ -27,6 +27,7 @@ class ReusableRichText extends StatelessWidget {
         Text(
           value,
           softWrap: true,
+          overflow: TextOverflow.ellipsis,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 fontSize: SizingConfig.textMultiplier * 1.8,
                 fontWeight: FontWeight.w400,

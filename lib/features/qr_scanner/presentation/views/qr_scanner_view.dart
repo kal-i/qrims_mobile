@@ -262,20 +262,16 @@ class _QrScannerViewState extends State<QrScannerView>
                   ),
                   Row(
                     children: [
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 5.0),
+                        child: Text('|'),
+                      ),
                       GestureDetector(
                         onTap: () => _encryptedId.value = '',
                         child: const Icon(
                           HugeIcons.strokeRoundedDelete01,
                           size: 20.0,
                         ),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 5.0),
-                        child: Text('|'),
-                      ),
-                      const Icon(
-                        HugeIcons.strokeRoundedCopy01,
-                        size: 20.0,
                       ),
                     ],
                   )

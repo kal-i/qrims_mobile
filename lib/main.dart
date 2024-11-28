@@ -20,11 +20,13 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDependencies();
 
-  runApp(
-    DevicePreview(
-      builder: (context) => const MyApp(),
-    ),
-  );
+  // runApp(
+  //   DevicePreview(
+  //     builder: (context) => const MyApp(),
+  //   ),
+  // );
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -63,9 +65,9 @@ class MyApp extends StatelessWidget {
           child: BlocBuilder<ThemeBloc, ThemeData>(
             builder: (context, state) {
               return MaterialApp.router(
-                useInheritedMediaQuery: true,
-                locale: DevicePreview.locale(context),
-                builder: DevicePreview.appBuilder,
+                //useInheritedMediaQuery: true,
+                //locale: DevicePreview.locale(context),
+                //builder: DevicePreview.appBuilder,
                 debugShowCheckedModeBanner: false,
                 theme: state,
                 routerConfig: AppRoutingConfig.router,

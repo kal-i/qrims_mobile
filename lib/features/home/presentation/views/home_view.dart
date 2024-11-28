@@ -16,6 +16,7 @@ import '../../../../core/features/purchase_request/presentation/bloc/bloc/purcha
 import '../../../../core/features/purchase_request/presentation/components/purchase_request_card.dart';
 import '../../../../core/models/purchase_request/purchase_request.dart';
 import '../../../../core/models/user/mobile_user.dart';
+import '../../../../core/models/user/user.dart';
 import '../../../../core/utils/capitalizer.dart';
 import '../../../../core/utils/delightful_toast_utils.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
@@ -128,9 +129,21 @@ class _HomeViewState extends State<HomeView> {
   Widget _buildHeaderRow() {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
-        late MobileUserModel user;
+        // Default placeholder values
+        String userName = "Guest";
+        MobileUserModel? _user;
+
+        // if (state is AuthSuccess<UserModel>) {
+        //   user = state.data;
+        //   userName = capitalizeWord(user.name.toString().split(' ').last);
+        // }
+
         if (state is AuthSuccess) {
-          user = state.data;
+          _user = MobileUserModel.fromEntity(state.data);
+        }
+
+        if (state is UserInfoUpdated) {
+          _user = MobileUserModel.fromEntity(state.updatedUser);
         }
 
         return Row(
@@ -144,19 +157,53 @@ class _HomeViewState extends State<HomeView> {
                   style: Theme.of(context).textTheme.titleSmall,
                 ),
                 Text(
-                  capitalizeWord(user.name.toString().split(' ').last),
+                  capitalizeWord(_user!.name.toString().split(' ').last),
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
               ],
             ),
             ProfileAvatar(
-              user: user,
+              user: _user, // Ensure ProfileAvatar gracefully handles null values
             ),
           ],
         );
       },
     );
   }
+
+
+  // Widget _buildHeaderRow() {
+  //   return BlocBuilder<AuthBloc, AuthState>(
+  //     builder: (context, state) {
+  //       late MobileUserModel user;
+  //       if (state is AuthSuccess) {
+  //         user = state.data;
+  //       }
+  //
+  //       return Row(
+  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //         children: [
+  //           Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               Text(
+  //                 'Welcome back,',
+  //                 style: Theme.of(context).textTheme.titleSmall,
+  //               ),
+  //               Text(
+  //                 capitalizeWord(user.name.toString().split(' ').last),
+  //                 style: Theme.of(context).textTheme.titleMedium,
+  //               ),
+  //             ],
+  //           ),
+  //           ProfileAvatar(
+  //             user: user,
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   Widget _buildSummaryReportsContainer() {
     return Row(

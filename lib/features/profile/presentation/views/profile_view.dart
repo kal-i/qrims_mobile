@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -19,6 +20,7 @@ import '../../../../core/common/components/custom_message_box.dart';
 import '../../../../core/common/components/custom_outline_button.dart';
 import '../../../../core/common/components/profile_avatar.dart';
 import '../../../../core/models/user/mobile_user.dart';
+import '../../../../core/models/user/user.dart';
 import '../../../../core/utils/capitalizer.dart';
 import '../../../../core/utils/delightful_toast_utils.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
@@ -36,39 +38,65 @@ class _ProfileViewState extends State<ProfileView> {
 
   final ValueNotifier<bool> _isLoading = ValueNotifier(false);
 
+  // Future<void> _uploadImage(String userId) async {
+  //   // Request permission before picking an image
+  //   var status = await Permission.storage.request();
+  //
+  //   if (status.isGranted) {
+  //     final result = await FilePicker.platform.pickFiles(
+  //       type: FileType.image,
+  //     );
+  //
+  //     if (result != null) {
+  //       // get path of selected file
+  //       final file = File(result.files.single.path!);
+  //
+  //       // read file as bytes
+  //       final bytes = await file.readAsBytes();
+  //
+  //       // Convert bytes to Base64 string
+  //       final base64String = base64Encode(bytes);
+  //
+  //       // Print or use the Base64 string as needed
+  //       print('Base64 String: $base64String');
+  //
+  //       context.read<AuthBloc>().add(
+  //         UpdateUserInfo(
+  //           id: userId,
+  //           profileImage: base64String,
+  //         ),
+  //       );
+  //       //print('file: $file');
+  //       //print('bytes: $bytes');
+  //     }
+  //   } else {
+  //     print("Storage permission not granted");
+  //   }
+  // }
+
   Future<void> _uploadImage(String userId) async {
-    // Request permission before picking an image
-    var status = await Permission.storage.request();
+    final ImagePicker picker = ImagePicker();
 
-    if (status.isGranted) {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.image,
+    // Pick an image from the gallery
+    final XFile? pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80, // Reduce size for faster upload
+    );
+
+    if (pickedFile != null) {
+      // Convert file to Base64
+      final file = File(pickedFile.path);
+      final bytes = await file.readAsBytes();
+      final base64String = base64Encode(bytes);
+
+      context.read<AuthBloc>().add(
+        UpdateUserInfo(
+          id: userId,
+          profileImage: base64String,
+        ),
       );
-
-      if (result != null) {
-        // get path of selected file
-        final file = File(result.files.single.path!);
-
-        // read file as bytes
-        final bytes = await file.readAsBytes();
-
-        // Convert bytes to Base64 string
-        final base64String = base64Encode(bytes);
-
-        // Print or use the Base64 string as needed
-        print('Base64 String: $base64String');
-
-        context.read<AuthBloc>().add(
-          UpdateUserInfo(
-            id: userId,
-            profileImage: base64String,
-          ),
-        );
-        //print('file: $file');
-        //print('bytes: $bytes');
-      }
     } else {
-      print("Storage permission not granted");
+      print("No image selected");
     }
   }
 
@@ -97,11 +125,11 @@ class _ProfileViewState extends State<ProfileView> {
           _isLoading.value = false;
           _errorMessage = null;
           _user = MobileUserModel.fromEntity(state.updatedUser);
-          DelightfulToastUtils.showDelightfulToast(
-            context: context,
-            title: 'Success',
-            subtitle: 'Updated',
-          );
+          // DelightfulToastUtils.showDelightfulToast(
+          //   context: context,
+          //   title: 'Success',
+          //   subtitle: 'Updated',
+          // );
         }
 
         if (state is AuthFailure) {
@@ -127,7 +155,7 @@ class _ProfileViewState extends State<ProfileView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _buildProfileSection(),
+                  _buildProfileSection(_user!),
                   SizedBox(
                     height: SizingConfig.heightMultiplier * 2.0,
                   ),
@@ -139,7 +167,7 @@ class _ProfileViewState extends State<ProfileView> {
                     color: Theme.of(context).dividerColor,
                     thickness: 1.5,
                   ),
-                  _buildThemePreference(),
+                  //_buildThemePreference(),
                   _buildSignOut(),
                   if (_errorMessage != null)
                     Center(
@@ -156,12 +184,12 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
-  Widget _buildProfileSection() {
+  Widget _buildProfileSection(UserModel user) {
     return Row(
       children: [
-        // const ProfileAvatar(
-        //   size: 80.0, user: null,
-        // ),
+        ProfileAvatar(
+          size: 80.0, user: user,
+        ),
         SizedBox(
           width: SizingConfig.widthMultiplier * 5.0,
         ),
@@ -198,15 +226,15 @@ class _ProfileViewState extends State<ProfileView> {
             height: SizingConfig.heightMultiplier * 6.0,
           ),
         ),
-        SizedBox(
-          width: SizingConfig.widthMultiplier * 3.0,
-        ),
-        Expanded(
-          child: CustomFilledButton(
-            text: 'Edit Information',
-            height: SizingConfig.heightMultiplier * 6.0,
-          ),
-        ),
+        // SizedBox(
+        //   width: SizingConfig.widthMultiplier * 3.0,
+        // ),
+        // Expanded(
+        //   child: CustomFilledButton(
+        //     text: 'Edit Information',
+        //     height: SizingConfig.heightMultiplier * 6.0,
+        //   ),
+        // ),
       ],
     );
   }

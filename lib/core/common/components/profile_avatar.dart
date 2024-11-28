@@ -8,17 +8,17 @@ import '../../models/user/user.dart';
 class ProfileAvatar extends StatelessWidget {
   const ProfileAvatar({
     super.key,
-    required this.user,
+    this.user,
     this.size,
   });
 
-  final UserModel user;
+  final UserModel? user;
   final double? size;
 
   @override
   Widget build(BuildContext context) {
-    final imageProvider = user.profileImage != null
-        ? MemoryImage(base64Decode(user.profileImage!))
+    final imageProvider = user?.profileImage != null
+        ? MemoryImage(base64Decode(user!.profileImage!))
         : const AssetImage(ImagePath.profile) as ImageProvider;
 
     return Container(

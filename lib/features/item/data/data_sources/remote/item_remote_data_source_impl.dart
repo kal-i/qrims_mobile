@@ -19,8 +19,10 @@ class ItemRemoteDataSourceImpl implements ItemRemoteDataSource {
     required String id,
   }) async {
     try {
+
+      final encodedParams = Uri.encodeComponent(id);
       final response = await httpService.get(
-        endpoint: '$itemsEncryptedIdEP/$id',
+        endpoint: '$itemsEncryptedIdEP/$encodedParams',
       );
 
       if (response.statusCode != 200) {
