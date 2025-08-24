@@ -82,9 +82,72 @@ Tools, language, and frameworks used in the project:
 
 ---
 
+## 📸 Screenshots  
 
-## Screenshots  
-![Mobile Home View](https://raw.githubusercontent.com/kal-i/qrims_desktop/main/assets/images/home.jpg) 
+### 🔑 Login  
+![Login Screen](https://raw.githubusercontent.com/kal-i/qrims_mobile/main/assets/images/login.jpeg)  
+Secure login with email and admin verification.  
+
+---
+
+### 🔑 Register  
+![Register Screen](https://raw.githubusercontent.com/kal-i/qrims_mobile/main/assets/images/register.jpeg)  
+Create a new account.  
+
+---
+
+### 🔑 Forgot Password  
+![Forgot Password Screen](https://raw.githubusercontent.com/kal-i/qrims_mobile/main/assets/images/forgot_password.jpeg)  
+Request password reset with email OTP.  
+
+---
+
+### 🔑 Verification
+![Verification Screen](https://raw.githubusercontent.com/kal-i/qrims_mobile/main/assets/images/verification.jpeg)  
+Enter verification code sent to your email.  
+
+---
+
+### 🔑 Password Reset
+![Password Reset Screen](https://raw.githubusercontent.com/kal-i/qrims_mobile/main/assets/images/password_reset.jpeg)  
+Set a new secure password.  
+
+---
+
+### 🔑 Account Approval
+![Account Approval Screen](https://raw.githubusercontent.com/kal-i/qrims_mobile/main/assets/images/account_approval.jpeg)  
+Wait for admin approval to access the app.  
+
+---
+
+### 🏠 Home  
+![Home Screen](https://raw.githubusercontent.com/kal-i/qrims_mobile/main/assets/images/home.jpeg)
+Quick overview of purchase requests and status.  
+
+---
+
+### 🔔 Notifications  
+![Notifications](https://raw.githubusercontent.com/kal-i/qrims_mobile/main/assets/images/notifications.jpeg) 
+Receive updates when requests are registered, issued, or canceled.  
+
+---
+
+### 📷 QR Scan  
+![QR Scan](https://raw.githubusercontent.com/kal-i/qrims_mobile/main/assets/images/qr_scan.jpeg)
+Scan QR codes attached from issuance document or inventory sticker.  
+
+---
+
+### 📋 Issuance Details  
+![Request Details](https://raw.githubusercontent.com/kal-i/qrims_mobile/main/assets/images/view_issuance_document.jpeg)
+View detailed information of issuance.  
+
+---
+
+### 👤 Profile  
+![Profile](https://raw.githubusercontent.com/kal-i/qrims_mobile/main/assets/images/profile.jpeg)
+View user info including name, position, and department.  
+
 
 ## How to Use  
 [Download User Manual (PDF)](https://github.com/kal-i/qrims_desktop/raw/main/UserManual.pdf)
