@@ -148,6 +148,8 @@ View detailed information of issuance.
 ![Profile](https://raw.githubusercontent.com/kal-i/qrims_mobile/main/assets/images/profile.jpeg)
 View user info including name, position, and department.  
 
+## 📦 This project is part of the **QR Code Inventory Management and Item Tracking System**  
+- [QRIMS Desktop](https://github.com/kal-i/qrims_desktop)  
 
 ## How to Use  
 [Download User Manual (PDF)](https://github.com/kal-i/qrims_desktop/raw/main/UserManual.pdf)
